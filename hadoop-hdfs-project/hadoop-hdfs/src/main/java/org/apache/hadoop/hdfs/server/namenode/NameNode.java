@@ -140,14 +140,42 @@ import static org.apache.hadoop.util.ToolRunner.confirmPrompt;
  *   1)  filename->blocksequence (namespace)
  *   2)  block->machinelist ("inodes")
  *
+ *
+ * 翻译:
+ * NameNode 服务既管理了HDFS集群的命名空间(目录树),也管理了"inode table",
+ * 一个HDFS集群里面只有一个NameNode(HA方案、联邦方案除外)
+ *
+ * NameNode管理了两张比较重要的表:
+ * 1) 一张表管理了文件与block块之间的关系
+ * 2) 另一张表管理了block文件块与 DataNode主机之间的关系
+ *
+ *
  * The first table is stored on disk and is very precious.
  * The second table is rebuilt every time the NameNode comes up.
+ *
+ * 翻译:
+ * 第一张表非常重要,存储袋了磁盘上面(因为文件与block块之间的关系是不会发生变化的)
+ * 第二张表是每次NameNode重启的时候重新构建出来的
+ *
  *
  * 'NameNode' refers to both this class as well as the 'NameNode server'.
  * The 'FSNamesystem' class actually performs most of the filesystem
  * management.  The majority of the 'NameNode' class itself is concerned
  * with exposing the IPC interface and the HTTP server to the outside world,
  * plus some configuration management.
+ *
+ * 翻译:
+ * NameNode 服务是由三个重要的类支撑的：
+ * 1) NameNode 类:
+ *      管理配置的参数hdfs-site.xml、core-site.xml
+ * 2) NameNode server:
+ *      RPC Server:
+ *          NameNodeRPCServer: 开放端口,等到别人调用。比如8020/9000
+ *      HTTP Server:
+ *          NameNodeHttpServer: 开放50070界面,我们可以通过这个界面了解 HDFS的情况
+ * 3) FSNameSystem:
+ *      这个类非常重要,管理了HDFS的元数据(目录树的信息)
+ *
  *
  * NameNode implements the
  * {@link org.apache.hadoop.hdfs.protocol.ClientProtocol} interface, which
