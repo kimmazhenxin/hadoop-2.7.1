@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-annotations/hadoop-annotations.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-annotations/hadoop-annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-ant/hadoop-ant.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-ant/hadoop-ant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-archives/hadoop-archives.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-archives/hadoop-archives.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-assemblies/hadoop-assemblies.iml" filepath="$PROJECT_DIR$/hadoop-assemblies/hadoop-assemblies.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-auth/hadoop-auth.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-auth/hadoop-auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-auth-examples/hadoop-auth-examples.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-auth-examples/hadoop-auth-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-aws/hadoop-aws.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-aws/hadoop-aws.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-azure/hadoop-azure.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-azure/hadoop-azure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-client/hadoop-client.iml" filepath="$PROJECT_DIR$/hadoop-client/hadoop-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-common/hadoop-common.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-common/hadoop-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-common-project.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-common-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-datajoin/hadoop-datajoin.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-datajoin/hadoop-datajoin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-dist/hadoop-dist.iml" filepath="$PROJECT_DIR$/hadoop-dist/hadoop-dist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-distcp/hadoop-distcp.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-distcp/hadoop-distcp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-extras/hadoop-extras.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-extras/hadoop-extras.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-gridmix/hadoop-gridmix.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-gridmix/hadoop-gridmix.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs/hadoop-hdfs.iml" filepath="$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs/hadoop-hdfs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs/src/contrib/bkjournal/hadoop-hdfs-bkjournal.iml" filepath="$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs/src/contrib/bkjournal/hadoop-hdfs-bkjournal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs-httpfs/hadoop-hdfs-httpfs.iml" filepath="$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs-httpfs/hadoop-hdfs-httpfs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs-nfs/hadoop-hdfs-nfs.iml" filepath="$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs-nfs/hadoop-hdfs-nfs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs-project.iml" filepath="$PROJECT_DIR$/hadoop-hdfs-project/hadoop-hdfs-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-kms/hadoop-kms.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-kms/hadoop-kms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-main.iml" filepath="$PROJECT_DIR$/hadoop-main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-app/hadoop-mapreduce-client-app.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-app/hadoop-mapreduce-client-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-common/hadoop-mapreduce-client-common.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-common/hadoop-mapreduce-client-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-core/hadoop-mapreduce-client-core.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-core/hadoop-mapreduce-client-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-hs/hadoop-mapreduce-client-hs.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-hs/hadoop-mapreduce-client-hs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-hs-plugins/hadoop-mapreduce-client-hs-plugins.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-hs-plugins/hadoop-mapreduce-client-hs-plugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-jobclient/hadoop-mapreduce-client-jobclient.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-jobclient/hadoop-mapreduce-client-jobclient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-shuffle/hadoop-mapreduce-client-shuffle.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-shuffle/hadoop-mapreduce-client-shuffle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-examples/hadoop-mapreduce-examples.iml" filepath="$PROJECT_DIR$/hadoop-mapreduce-project/hadoop-mapreduce-examples/hadoop-mapreduce-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-maven-plugins/hadoop-maven-plugins.iml" filepath="$PROJECT_DIR$/hadoop-maven-plugins/hadoop-maven-plugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-minicluster/hadoop-minicluster.iml" filepath="$PROJECT_DIR$/hadoop-minicluster/hadoop-minicluster.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-minikdc/hadoop-minikdc.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-minikdc/hadoop-minikdc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-common-project/hadoop-nfs/hadoop-nfs.iml" filepath="$PROJECT_DIR$/hadoop-common-project/hadoop-nfs/hadoop-nfs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-openstack/hadoop-openstack.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-openstack/hadoop-openstack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-pipes/hadoop-pipes.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-pipes/hadoop-pipes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-project/hadoop-project.iml" filepath="$PROJECT_DIR$/hadoop-project/hadoop-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-project-dist/hadoop-project-dist.iml" filepath="$PROJECT_DIR$/hadoop-project-dist/hadoop-project-dist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-rumen/hadoop-rumen.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-rumen/hadoop-rumen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-sls/hadoop-sls.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-sls/hadoop-sls.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-streaming/hadoop-streaming.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-streaming/hadoop-streaming.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-tools.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-tools/hadoop-tools-dist/hadoop-tools-dist.iml" filepath="$PROJECT_DIR$/hadoop-tools/hadoop-tools-dist/hadoop-tools-dist.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/hadoop-yarn-api.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/hadoop-yarn-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/hadoop-yarn-applications-distributedshell.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/hadoop-yarn-applications-distributedshell.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-unmanaged-am-launcher/hadoop-yarn-applications-unmanaged-am-launcher.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-unmanaged-am-launcher/hadoop-yarn-applications-unmanaged-am-launcher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-client/hadoop-yarn-client.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-client/hadoop-yarn-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common/hadoop-yarn-common.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common/hadoop-yarn-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn-project.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-registry/hadoop-yarn-registry.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-registry/hadoop-yarn-registry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-applicationhistoryservice/hadoop-yarn-server-applicationhistoryservice.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-applicationhistoryservice/hadoop-yarn-server-applicationhistoryservice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-common/hadoop-yarn-server-common.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-common/hadoop-yarn-server-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/hadoop-yarn-server-nodemanager.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/hadoop-yarn-server-nodemanager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/hadoop-yarn-server-resourcemanager.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/hadoop-yarn-server-resourcemanager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-sharedcachemanager/hadoop-yarn-server-sharedcachemanager.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-sharedcachemanager/hadoop-yarn-server-sharedcachemanager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-tests/hadoop-yarn-server-tests.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-tests/hadoop-yarn-server-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-web-proxy/hadoop-yarn-server-web-proxy.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-web-proxy/hadoop-yarn-server-web-proxy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-site/hadoop-yarn-site.iml" filepath="$PROJECT_DIR$/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-site/hadoop-yarn-site.iml" />
+    </modules>
+  </component>
+</project>

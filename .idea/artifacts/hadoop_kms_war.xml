@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="hadoop-kms:war">
+    <output-path>$PROJECT_DIR$/hadoop-common-project/hadoop-kms/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>hadoop-kms</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="hadoop-kms-2.7.1.war">
+      <element id="artifact" artifact-name="hadoop-kms:war exploded" />
+    </root>
+  </artifact>
+</component>
