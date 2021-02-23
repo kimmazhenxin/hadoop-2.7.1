@@ -118,6 +118,9 @@ public class NameNodeHttpServer {
       }
     }
 
+    /**
+     * Hadoop自己封装了一个HttpServer服务,即HttpServer2服务。类似的还有RPC,自己封装了Hadoop RPC服务
+     */
     HttpServer2.Builder builder = DFSUtil.httpServerTemplateForNNAndJN(conf,
         httpAddr, httpsAddr, "hdfs",
         DFSConfigKeys.DFS_NAMENODE_KERBEROS_INTERNAL_SPNEGO_PRINCIPAL_KEY,
@@ -138,7 +141,12 @@ public class NameNodeHttpServer {
 
     httpServer.setAttribute(NAMENODE_ATTRIBUTE_KEY, nn);
     httpServer.setAttribute(JspHelper.CURRENT_CONF, conf);
+    /**
+     * 绑定了一堆servlet服务
+     * Servlet服务越多,支持的功能就越多
+     */
     setupServlets(httpServer, conf);
+    // TODO 启动HttpServer服务,对外绑定50070端口
     httpServer.start();
 
     int connIdx = 0;
@@ -250,8 +258,15 @@ public class NameNodeHttpServer {
         CancelDelegationTokenServlet.class, true);
     httpServer.addInternalServlet("fsck", "/fsck", FsckServlet.class,
         true);
+    /**
+     * 上传元数据的请求: imagetransfer
+     * 之前原理图讲过SecondaryNameNode/StandByNameNode定期合并出来的FSImage,需要替换ActiveNameNode的FSImage,
+     * 发送的就是Http的请求,请求就会转发给这个Servlet
+     */
     httpServer.addInternalServlet("imagetransfer", ImageServlet.PATH_SPEC,
         ImageServlet.class, true);
+    // TODO 可以在50070界面浏览目录信息,就是因为这里有这个Servlet
+    // http:hadoop1:50070/listPaths/?path=/
     httpServer.addInternalServlet("listPaths", "/listPaths/*",
         ListPathsServlet.class, false);
     httpServer.addInternalServlet("data", "/data/*",

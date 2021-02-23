@@ -673,11 +673,13 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     FSNamesystem namesystem = new FSNamesystem(conf, fsImage, false);
     StartupOption startOpt = NameNode.getStartupOption(conf);
     if (startOpt == StartupOption.RECOVER) {
+      // 集群进入安全模式
       namesystem.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
     }
 
     long loadStart = monotonicNow();
     try {
+      // TODO 加载元数据
       namesystem.loadFSImage(startOpt);
     } catch (IOException ioe) {
       LOG.warn("Encountered exception loading fsimage", ioe);
@@ -972,6 +974,11 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     try {
       // We shouldn't be calling saveNamespace if we've come up in standby state.
       MetaRecoveryContext recovery = startOpt.createRecoveryContext();
+      /**
+       * NameNode启动时
+       * (1) fsimage + editlog 合并 = new FSImage
+       * 合并元数据
+       */
       final boolean staleImage
           = fsImage.recoverTransitionRead(startOpt, this, recovery);
       if (RollingUpgradeStartupOption.ROLLBACK.matches(startOpt) ||
@@ -983,6 +990,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
           + " (staleImage=" + staleImage + ", haEnabled=" + haEnabled
           + ", isRollingUpgrade=" + isRollingUpgrade() + ")");
       if (needToSave) {
+        // TODO (2) 把合并出来的新的fsimage写到我们的磁盘上面
         fsImage.saveNamespace(this);
       } else {
         updateStorageVersionForRollingUpgrade(fsImage.getLayoutVersion(),
@@ -996,6 +1004,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       // we shouldn't do it when coming up in standby state
       if (!haEnabled || (haEnabled && startOpt == StartupOption.UPGRADE)
           || (haEnabled && startOpt == StartupOption.UPGRADEONLY)) {
+        // TODO (3) 打开一个新的editlog开始写日志
         fsImage.openEditLogForWrite();
       }
       success = true;

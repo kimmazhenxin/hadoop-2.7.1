@@ -590,6 +590,7 @@ public class NameNode implements NameNodeStatusMXBean {
    * @return
    */
   protected InetSocketAddress getHttpServerBindAddress(Configuration conf) {
+    // 默认绑定了50070端口地址
     InetSocketAddress bindAddress = getHttpServerAddress(conf);
 
     // If DFS_NAMENODE_HTTP_BIND_HOST_KEY exists then it overrides the
@@ -609,6 +610,7 @@ public class NameNode implements NameNodeStatusMXBean {
   }
 
   protected void loadNamesystem(Configuration conf) throws IOException {
+    // TODO 从磁盘上加载元数据
     this.namesystem = FSNamesystem.loadFromDisk(conf);
   }
 
@@ -662,15 +664,34 @@ public class NameNode implements NameNodeStatusMXBean {
     NameNode.initMetrics(conf, this.getRole());
     StartupProgressMetrics.register(startupProgress);
 
+    /**
+     * NameNode的启动流程
+     *  服务端:
+     *    RPCServer
+     *      9000/8020
+     *    HttpServer
+     *      50070(界面)
+     */
     if (NamenodeRole.NAMENODE == role) {
+      // TODO 启动HTTPServer服务, 里面绑定了很多Servlet,它本质就是个HttpServer RPC
       startHttpServer(conf);
     }
 
     this.spanReceiverHost =
       SpanReceiverHost.get(conf, DFSConfigKeys.DFS_SERVER_HTRACE_PREFIX);
 
+    /**
+     * TODO 重点!!! 加载元数据
+     * 加载元数据这个流程,在集群刚启动的时候, 不做重点分析(集群刚启动没有元数据)
+     * 在后面分析管理元数据的时候,会再次回头分析
+     *
+     */
     loadNamesystem(conf);
 
+
+    /**
+     * 重点！！！ 这个就是Hadoop RPC
+     */
     rpcServer = createRpcServer(conf);
     if (clientNamenodeAddress == null) {
       // This is expected for MiniDFSCluster. Set it now using 
@@ -688,7 +709,12 @@ public class NameNode implements NameNodeStatusMXBean {
     pauseMonitor = new JvmPauseMonitor(conf);
     pauseMonitor.start();
     metrics.getJvmMetrics().setPauseMonitor(pauseMonitor);
-    
+
+    /**
+     * 启动一些公共的服务。 NameNode RPC 服务就是在这个里面启动的
+     * 1) 进行资源检查, 检查是否有磁盘足够存储元数据
+     * 2) 进入安全模式检查, 检查是否可以退出安全模式
+     */
     startCommonServices(conf);
   }
   
@@ -776,7 +802,9 @@ public class NameNode implements NameNodeStatusMXBean {
   }
   
   private void startHttpServer(final Configuration conf) throws IOException {
+    // TODO 启动了NameNodeHttpServer服务, getHttpServerBindAddress 设置了主机名和端口号
     httpServer = new NameNodeHttpServer(conf, this, getHttpServerBindAddress(conf));
+    // 启动服务
     httpServer.start();
     httpServer.setStartupProgress(startupProgress);
   }
@@ -836,6 +864,10 @@ public class NameNode implements NameNodeStatusMXBean {
     this.haContext = createHAContext();
     try {
       initializeGenericKeys(conf, nsId, namenodeId);
+      /**
+       * 分析源码时候,这种关键的方法我们一定要留意
+       * 初始化的方法在这
+       */
       initialize(conf);
       try {
         haContext.writeLock();
@@ -1445,6 +1477,18 @@ public class NameNode implements NameNodeStatusMXBean {
     LOG.info("createNameNode " + Arrays.asList(argv));
     if (conf == null)
       conf = new HdfsConfiguration();
+
+    /**
+     *
+     * 现在集群刚刚搭建起来,然后集群进行初始化
+     * hdfs namenode -format -xxx
+     *
+     * 集群启动:
+     * hadoop-daemon.sh start namenode
+     * 我们操作HDFS集群的时候会传递如下参数,然后进行匹配执行相应的操作
+     *
+     */
+
     StartupOption startOpt = parseArguments(argv);
     if (startOpt == null) {
       printUsage(System.err);
@@ -1513,6 +1557,10 @@ public class NameNode implements NameNodeStatusMXBean {
       }
       default: {
         DefaultMetricsSystem.initialize("NameNode");
+        /**
+         * 因为我们现在分析的是启动NameNode的代码,所以代码肯定启动走到这里了
+         * 启动集群关键代码
+         */
         return new NameNode(conf);
       }
     }
