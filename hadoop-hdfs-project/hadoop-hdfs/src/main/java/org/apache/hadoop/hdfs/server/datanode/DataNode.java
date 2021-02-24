@@ -215,28 +215,73 @@ import com.google.protobuf.BlockingService;
  * regularly with a single NameNode.  It also communicates
  * with client code and other DataNodes from time to time.
  *
+ * 翻译:
+ *  TODO 1
+ *    DataNode存储HDFS的block文件块,在一个文件系统里面可以有多个DataNode,
+ *    每个DataNode周期性地跟NameNode进行通信,客户端也可和DataNode进行交互,
+ *    或者DataNode之间也可以进行相互通信.
+ *
  * DataNodes store a series of named blocks.  The DataNode
  * allows client code to read these blocks, or to write new
  * block data.  The DataNode may also, in response to instructions
  * from its NameNode, delete blocks or copy blocks to/from other
  * DataNodes.
  *
+ * 翻译:
+ *  TODO 2
+ *    DataNode存储一系列Block,DataNode允许客户端去读写Block。
+ *    DataNode也会去响应NameNode,响应NameNode发送过来的一些指令,比如: 删除block, 复制block等操作.
+ *    这里需要注意的是: NameNode不会主动直接去操作DataNode,而是等到DataNode定期发送心跳,然后通过响应去告诉DataNode要做哪些指令操作.
+ *    DataNode -> 发送心跳 -> NameNode
+ *
+ *
  * The DataNode maintains just one critical table:
  *   block-> stream of bytes (of BLOCK_SIZE or less)
+ *
+ * 翻译:
+ *  TODO 3
+ *    DataNode 管理了一些列重要的表
  *
  * This info is stored on a local disk.  The DataNode
  * reports the table's contents to the NameNode upon startup
  * and every so often afterwards.
+ *
+ * 翻译:
+ *  TODO 4
+ *    这个信息是存储在本地磁盘,DataNode启动的时候会把这些信息汇报给NameNode,启动以后也会再不断地汇报
  *
  * DataNodes spend their lives in an endless loop of asking
  * the NameNode for something to do.  A NameNode cannot connect
  * to a DataNode directly; a NameNode simply returns values from
  * functions invoked by a DataNode.
  *
+ * 翻译:
+ *  TODO 5
+ *    DataNode 启动了以后会一直去问NameNode自己需要干些什么。
+ *    NameNode是不能直接去操作DataNode的. DataNode启动了以后,会跟NameNode进行心跳.
+ *    NameNode接收到了心跳以后,如果需要这个DataNode去执行一些指令,就会给DataNode一个返回值(指令).
+ *    DataNode接收到这些指令以后就会知道NameNode让它去做什么操作了.
+ *
  * DataNodes maintain an open server socket so that client code 
  * or other DataNodes can read/write data.  The host/port for
  * this server is reported to the NameNode, which then sends that
  * information to clients or other DataNodes that might be interested.
+ *
+ * 翻译:
+ *  TODO 6
+ *    DataNode开放了Socket服务,让客户端或者别的DataNode来进行读写数据.
+ *    DataNode启动的时候也会把主机名和端口发送给NameNode。
+ *    也就是说如果Client和DataNode想要访问某个DataNode,首先要去跟NameNode进行通信
+ *    从NameNode那里获取到目标DataNode的主机名和端口号
+ *    这样才可以访问到对应的DataNode
+ *
+ *
+ * TODO 总结:
+ *  1) 一个集群里面可以有多个DataNode，这些DataNode就是用来存储数据的
+ *  2) DataNode启动了以后会周期性地和NameNode进行通信(心跳,块汇报)
+ *  3) NameNode不能直接操作DataNode,而是通过心跳返回值指令去操作DataNode
+ *  4) DataNode启动了以后开放了一个Socket的服务（RPC）,等待别人去调用它
+ *
  *
  **********************************************************/
 @InterfaceAudience.Private
