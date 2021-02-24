@@ -61,6 +61,7 @@ final class NameNodeResourcePolicy {
         }
       } else {
         requiredResourceCount++;
+        // 判断磁盘空间是否充足,如果磁盘空间不够那么就返回false
         if (!resource.isResourceAvailable()) {
           // Short circuit - a required resource is not available.
           return false;

@@ -80,15 +80,19 @@ public class NameNodeResourceChecker {
 
     @Override
     public boolean isResourceAvailable() {
+      // TODO 获取当前目录空间的大小
       long availableSpace = df.getAvailable();
       if (LOG.isDebugEnabled()) {
         LOG.debug("Space available on volume '" + volume + "' is "
             + availableSpace);
       }
+      // TODO 如果空间大小小于 默认值100M,就返回false
       if (availableSpace < duReserved) {
         LOG.warn("Space available on volume '" + volume + "' is "
             + availableSpace +
             ", which is below the configured reserved amount " + duReserved);
+
+        // 注意: NameNode可能有误操作,跑了一个任务,这个任务生成了很多数据
         return false;
       } else {
         return true;
@@ -108,8 +112,10 @@ public class NameNodeResourceChecker {
    */
   public NameNodeResourceChecker(Configuration conf) throws IOException {
     this.conf = conf;
+    // 初始化元数据的目录
     volumes = new HashMap<String, CheckedVolume>();
 
+    // TODO 赋值存储fsimage磁盘的阈值
     duReserved = conf.getLong(DFSConfigKeys.DFS_NAMENODE_DU_RESERVED_KEY,
         DFSConfigKeys.DFS_NAMENODE_DU_RESERVED_DEFAULT);
     
@@ -130,7 +136,10 @@ public class NameNodeResourceChecker {
 
     // Add all the local edits dirs, marking some as required if they are
     // configured as such.
-    for (URI editsDirToCheck : localEditDirs) {
+    // TODO 添加需要监控的磁盘
+    // localEditDirs -》 hdfs-site.xml、core-site.xml 配置namenode的元数据存储
+    for (URI editsDirToCheck : localEditDirs) { // 配置fsimage的存放路径
+      // 添加要检查的目录
       addDirToCheck(editsDirToCheck,
           FSNamesystem.getRequiredNamespaceEditsDirs(conf).contains(
               editsDirToCheck));
@@ -161,10 +170,13 @@ public class NameNodeResourceChecker {
     if (!dir.exists()) {
       throw new IOException("Missing directory "+dir.getAbsolutePath());
     }
-    
+    // 一个目录就是一个CheckedVolume
     CheckedVolume newVolume = new CheckedVolume(dir, required);
+    // 获取目录对象
     CheckedVolume volume = volumes.get(newVolume.getVolume());
     if (volume == null || !volume.isRequired()) {
+      // volumes里面会有多个路径目录
+      // editlog
       volumes.put(newVolume.getVolume(), newVolume);
     }
   }
@@ -178,6 +190,9 @@ public class NameNodeResourceChecker {
    *         otherwise.
    */
   public boolean hasAvailableDiskSpace() {
+    // 关键调用的是这儿的代码
+    // volumes 里面存放的就是需要检查的目录
+    // 如果资源不够,返回值是false
     return NameNodeResourcePolicy.areResourcesAvailable(volumes.values(),
         minimumRedundantVolumes);
   }

@@ -712,7 +712,7 @@ public class NameNode implements NameNodeStatusMXBean {
 
     /**
      * 启动一些公共的服务。 NameNode RPC 服务就是在这个里面启动的
-     * 1) 进行资源检查, 检查是否有磁盘足够存储元数据
+     * 1) 进行资源检查, 检查是否有磁盘空间足够存储元数据
      * 2) 进入安全模式检查, 检查是否可以退出安全模式
      */
     startCommonServices(conf);
@@ -729,6 +729,7 @@ public class NameNode implements NameNodeStatusMXBean {
 
   /** Start the services common to active and standby states */
   private void startCommonServices(Configuration conf) throws IOException {
+    // TODO 元数据管理,主要做两件事: 1. 资源检测 2. 是否进入安全模式
     namesystem.startCommonServices(conf, haContext);
     registerNNSMXBean();
     if (NamenodeRole.NAMENODE != role) {
@@ -736,6 +737,7 @@ public class NameNode implements NameNodeStatusMXBean {
       httpServer.setNameNodeAddress(getNameNodeAddress());
       httpServer.setFSImage(getFSImage());
     }
+    // TODO 启动RPC服务端
     rpcServer.start();
     plugins = conf.getInstances(DFS_NAMENODE_PLUGINS_KEY,
         ServicePlugin.class);

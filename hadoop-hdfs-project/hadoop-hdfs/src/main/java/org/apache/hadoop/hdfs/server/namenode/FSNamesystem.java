@@ -1064,14 +1064,32 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     writeLock();
     this.haContext = haContext;
     try {
+
+      /**
+       * NameNode资源检查: 通过core-site.xml、hdfs-site.xml两个文件就知道元数据存在哪里了?
+       * (1) NameNode有两个目录: 存储fsimage的目录、存储editlog的目录,但是一般情况下或者默认情况下两者使用的是同一个目录
+       *    加载了配置文件,配置文件里面有存储元数据的目录
+       */
+      // TODO 磁盘空间检查之前的准备工作
       nnResourceChecker = new NameNodeResourceChecker(conf);
+
+
+      /**
+       * 磁盘空间检查,如果资源不够:
+       * (1) 日志里面打印告警
+       * (2) 把资源检查的变量赋值为false
+       */
       checkAvailableResources();
       assert safeMode != null && !isPopulatingReplQueues();
       StartupProgress prog = NameNode.getStartupProgress();
       prog.beginPhase(Phase.SAFEMODE);
       prog.setTotal(Phase.SAFEMODE, STEP_AWAITING_REPORTED_BLOCKS,
         getCompleteBlocksTotal());
+
+      // TODO 检测HDFS的安全模式是否要进入
       setBlockTotal();
+
+      // TODO 启动重要的服务
       blockManager.activate(conf);
     } finally {
       writeUnlock();
@@ -4603,6 +4621,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void checkAvailableResources() {
     Preconditions.checkState(nnResourceChecker != null,
         "nnResourceChecker not initialized");
+    // TODO 如果磁盘空间不够,那么 hasResourcesAvailable = false,返回false
     hasResourcesAvailable = nnResourceChecker.hasAvailableDiskSpace();
   }
 
@@ -5312,6 +5331,25 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     /** 
      * There is no need to enter safe mode 
      * if DFS is empty or {@link #threshold} == 0
+     *
+     *
+     * HDFS集群进入安全模式的条件:
+     *  TODO 条件一:
+     *    threshold != 0 && blockSafe < blockThreshold
+     *    HDFS的元数据那里程序总计分析出来上一次关闭集群之前
+     *    假如有1000个complete状态的block,默认阈值的计算比例是0.999,这样blockThreshold的值是1000 * 0.999 = 999
+     *    现在集群起来了以后,发现累计的DataNode汇报过来的complete状态的block个数（blockSafe）
+     *    如果小于999(blockThreshold),那么HDFS集群就会进入安全模式
+     *
+     *  TODO 条件二:
+     *    datanodeThreshold != 0 && getNumLiveDataNodes() < datanodeThreshold
+     *    如果存活的DataNode的个数小于一定的数目的时候, 就会进入安全模式
+     *    默认是0,所以相当于没启用,但是我们也可以配置,如果存活的DataNode个数小于多少就让HDFS集群进入安全模式
+     *
+     *  TODO 条件三:
+     *    !nameNodeHasResourcesAvailable() 就是前面检查NameNode写的元数据的目录空间是否大于100M.如果目录空间的大小小于100M,
+     *    nameNodeHasResourcesAvailable()就为false,HDFS集群就会进入安全模式。
+     *
      */
     private boolean needEnter() {
       return (threshold != 0 && blockSafe < blockThreshold) ||
@@ -5331,7 +5369,9 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       }
       // if smmthread is already running, the block threshold must have been 
       // reached before, there is no need to enter the safe mode again
+      // TODO needEnter() 判断集群是否进入安全模式
       if (smmthread == null && needEnter()) {
+        // 进入安全模式
         enter();
         // check if we are ready to initialize replication queues
         if (canInitializeReplQueues() && !isPopulatingReplQueues()
@@ -5368,9 +5408,13 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       
     /**
      * Set total number of blocks.
+     *
+     *
+     * NameNode进入安全模式的条件是什么?
      */
     private synchronized void setBlockTotal(int total) {
       this.blockTotal = total;
+      // TODO 计算阈值
       this.blockThreshold = (int) (blockTotal * threshold);
       this.blockReplQueueThreshold = 
         (int) (blockTotal * replQueueThreshold);
@@ -5382,6 +5426,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       }
       if(blockSafe < 0)
         this.blockSafe = 0;
+      // 检查安全模式
       checkMode();
     }
       
@@ -5392,7 +5437,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
      */
     private synchronized void incrementSafeBlockCount(short replication) {
       if (replication == safeReplication) {
-        this.blockSafe++;
+        // DataNode会进行block的汇报block信息 -> NameNode
+        this.blockSafe++; //累计我们DataNode汇报过来complete状态的Block块个数
 
         // Report startup progress only if we haven't completed startup yet.
         StartupProgress prog = NameNode.getStartupProgress();
@@ -5727,6 +5773,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     SafeModeInfo safeMode = this.safeMode;
     if (safeMode == null)
       return;
+    // TODO 设置安全模式
+    // 参数: getCompleteBlocksTotal() 集群里面应该能【正常使用的block的个数】
     safeMode.setBlockTotal((int)getCompleteBlocksTotal());
   }
 
@@ -5742,13 +5790,21 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   /**
    * Get the total number of COMPLETE blocks in the system.
    * For safe mode only complete blocks are counted.
+   *
+   * TODO 在HDFS集群里面Block的状态分为两种类型:
+   * 1) complete类型: 正常可用的Block
+   * 2) ununder construction类型: 处于正在构建的Block
+   *
+   * 该方法返回的就是历史上所有已经complete状态的Block个数
    */
   private long getCompleteBlocksTotal() {
     // Calculate number of blocks under construction
     long numUCBlocks = 0;
     readLock();
+    // 获取所有正在构建的block
     numUCBlocks = leaseManager.getNumUnderConstructionBlocks();
     try {
+      // TODO 获取所有的Block - 正在构建的block = 应该能正常使用的总的block
       return getBlocksTotal() - numUCBlocks;
     } finally {
       readUnlock();
