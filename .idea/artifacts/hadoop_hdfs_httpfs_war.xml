@@ -7,7 +7,7 @@
         <packaging>war</packaging>
       </options>
     </properties>
-    <root id="archive" name="hadoop-hdfs-httpfs-2.7.1.war">
+    <root id="archive" name="hadoop-project-2.7.1.war">
       <element id="artifact" artifact-name="hadoop-hdfs-httpfs:war exploded" />
     </root>
   </artifact>
