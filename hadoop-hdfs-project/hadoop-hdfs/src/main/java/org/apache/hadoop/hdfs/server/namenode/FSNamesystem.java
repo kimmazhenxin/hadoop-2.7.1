@@ -3923,7 +3923,13 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     writeLock();
     try {
       checkOperation(OperationCategory.WRITE);
+      //如果是安全模式,无法创建目录
       checkNameNodeSafeMode("Cannot create directory " + src);
+      // TODO 1)创建目录
+      //  主要三件事:
+      //    1. 更新NameNode中内存中的元数据目录树fsimage(写入内存,修改内存目录树)
+      //    2. 使用双缓冲方案将数据写入到NameNode的本地文件
+      //    3. 使用双缓冲方案将数据写入到JournalNode的集群中
       auditStat = FSDirMkdirOp.mkdirs(this, src, permissions, createParent);
     } catch (AccessControlException e) {
       logAuditEvent(false, "mkdirs", src);
@@ -3931,6 +3937,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     } finally {
       writeUnlock();
     }
+    // TODO 2)元数据日志持久化,这里是为了安全又持久化了一次数据(写入NameNode磁盘和JournalNode磁盘)
     getEditLog().logSync();
     logAuditEvent(true, "mkdirs", src, null, auditStat);
     return true;

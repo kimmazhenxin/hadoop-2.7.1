@@ -104,6 +104,8 @@ public class JournalSet implements JournalManager {
     public void startLogSegment(long txId, int layoutVersion) throws IOException {
       Preconditions.checkState(stream == null);
       disabled = false;
+      //TODO FileJournalManager     -> 返回EditLogFileOutputStream  目的是写本地文件
+      //TODO QuorumJournalManager   -> 返回QuorumOutputStream       目的是写JournalNode
       stream = journal.startLogSegment(txId, layoutVersion);
     }
 
@@ -216,13 +218,20 @@ public class JournalSet implements JournalManager {
   @Override
   public EditLogOutputStream startLogSegment(final long txId,
       final int layoutVersion) throws IOException {
+    //闭包
     mapJournalsAndReportErrors(new JournalClosure() {
+      // 给流赋值
       @Override
       public void apply(JournalAndStream jas) throws IOException {
+        //TODO 实际是分别调用 FileJournalManager、QuorumJournalManager两个对象的startLogSegment方法
         jas.startLogSegment(txId, layoutVersion);
       }
     }, "starting log segment " + txId);
-    return new JournalSetOutputStream();
+
+    //TODO 返回来的是JournalSetOutputStream
+    // 这个流里面肯定需要封装多个流
+    // namenode、journalnode
+    return new JournalSetOutputStream();// 后续调用write
   }
   
   @Override
@@ -389,6 +398,9 @@ public class JournalSet implements JournalManager {
 
     List<JournalAndStream> badJAS = Lists.newLinkedList();
     for (JournalAndStream jas : journals) {
+      // journals里面有两个对象:
+      // FileJournalManager
+      // QuorumJournalManager
       try {
         closure.apply(jas);
       } catch (Throwable t) {
@@ -449,6 +461,9 @@ public class JournalSet implements JournalManager {
         @Override
         public void apply(JournalAndStream jas) throws IOException {
           if (jas.isActive()) {
+            //TODO 其实是调用下面两个对象的方法:
+            // 第一次: EditLogFileOutputStream
+            // 第二次: QuorumOutputStream
             jas.getCurrentStream().write(op);
           }
         }
@@ -589,6 +604,9 @@ public class JournalSet implements JournalManager {
   
   void add(JournalManager j, boolean required, boolean shared) {
     JournalAndStream jas = new JournalAndStream(j, required, shared);
+    //所以这个journals里面现在有两个对象:
+    //FileJournalManager   -> 把数据写到本地的文件系统中
+    //QuorumJournalManager -> 把数据写到JournalNode里面
     journals.add(jas);
   }
   

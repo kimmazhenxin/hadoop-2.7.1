@@ -375,6 +375,7 @@ public class Journal implements Closeable {
     curSegment.setReadyToFlush();
     StopWatch sw = new StopWatch();
     sw.start();
+    // 这里的本质就是调用EditLogFileOutputStream的flushAndSync方法
     curSegment.flush(shouldFsync);
     sw.stop();
 

@@ -41,25 +41,48 @@ import static org.apache.hadoop.util.Time.now;
 
 class FSDirMkdirOp {
 
+  /**
+   * HDFS是如何管理目录树的
+   * @param fsn
+   * @param src
+   * @param permissions
+   * @param createParent
+   * @return
+   * @throws IOException
+   */
   static HdfsFileStatus mkdirs(FSNamesystem fsn, String src,
       PermissionStatus permissions, boolean createParent) throws IOException {
+    // 看看HDFS如何获取目录树
+
+    //TODO 1. 获取目录树
     FSDirectory fsd = fsn.getFSDirectory();
+
     if(NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("DIR* NameSystem.mkdirs: " + src);
     }
+
     if (!DFSUtil.isValidName(src)) {
       throw new InvalidPathException(src);
     }
+
     FSPermissionChecker pc = fsd.getPermissionChecker();
     byte[][] pathComponents = FSDirectory.getPathComponentsForReservedPath(src);
     fsd.writeLock();
+
     try {
+
+      // 比如: hadoop fs -mkdir /usr/hive/warehouse/data/mytable
+      // FsSystem.mkdirs(new Path("/usr/hive/warehouse/data/mytable"))
+      // TODO 解析要创建目录的路径 /usr/hive/warehouse/data/mytable
       src = fsd.resolvePath(pc, src, pathComponents);
+      // 获取目录相关的INode
       INodesInPath iip = fsd.getINodesInPath4Write(src);
       if (fsd.isPermissionEnabled()) {
         fsd.checkTraverse(pc, iip);
       }
 
+
+      //TODO 找到最后一个节点, 也就是最后一个INode,按照上面例子就是data这个INode
       final INode lastINode = iip.getLastINode();
       if (lastINode != null && lastINode.isFile()) {
         throw new FileAlreadyExistsException("Path is not a directory: " + src);
@@ -80,13 +103,21 @@ class FSDirMkdirOp {
         // create multiple inodes.
         fsn.checkFsObjectLimit();
 
+        /**
+         * 获取还没有创建的目录树
+         * 已存在： /usr/hive/warehouse
+         * 要创建:  /uer/hive/warehouse/data/mytable
+         * 那么最终需要创建的目录: /data/mytable
+         */
         List<String> nonExisting = iip.getPath(existing.length(),
             iip.length() - existing.length());
         int length = nonExisting.size();
+        // TODO 需要创建多级目录走这段代码
         if (length > 1) {
           List<String> ancestors = nonExisting.subList(0, length - 1);
           // Ensure that the user can traversal the path by adding implicit
           // u+wx permission to all ancestor directories
+          // TODO 重点!!! 执行这个创建子目录
           existing = createChildrenDirectories(fsd, existing, ancestors,
               addImplicitUwx(permissions, permissions));
           if (existing == null) {
@@ -163,6 +194,8 @@ class FSDirMkdirOp {
     assert fsd.hasWriteLock();
 
     for (String component : children) {
+      // TODO 一个一个目录去创建
+      // 如果我们创建的目录只有一个,那么只会执行一次
       existing = createSingleDirectory(fsd, existing, component, perm);
       if (existing == null) {
         return null;
@@ -188,6 +221,9 @@ class FSDirMkdirOp {
       INodesInPath existing, String localName, PermissionStatus perm)
       throws IOException {
     assert fsd.hasWriteLock();
+
+    //  TODO 1) 更新文件目录树,这棵目录树是存在于内存中的,由FSNameSystem管理的
+    //  TODO 更新内存里面的数据
     existing = unprotectedMkdir(fsd, fsd.allocateNewInodeId(), existing,
         localName.getBytes(Charsets.UTF_8), perm, null, now());
     if (existing == null) {
@@ -200,6 +236,10 @@ class FSDirMkdirOp {
     NameNode.getNameNodeMetrics().incrFilesCreated();
 
     String cur = existing.getPath();
+
+    //TODO 2) 重点！！！！这里就是使用双缓冲写方案写入元数据！
+    //TODO 把元数据信息记录到磁盘上(但是一开始先写到内存中,后刷磁盘)
+    //TODO 往磁盘上面记录元数据日志
     fsd.getEditLog().logMkDir(cur, newNode);
     if (NameNode.stateChangeLog.isDebugEnabled()) {
       NameNode.stateChangeLog.debug("mkdirs: created directory " + cur);
@@ -231,9 +271,19 @@ class FSDirMkdirOp {
       throw new FileAlreadyExistsException("Parent path is not a directory: " +
           parent.getPath() + " " + DFSUtil.bytes2String(name));
     }
+
+    /**
+     * FSDirectory 文件目录树  / 根目录
+     * INodeDirectory 代表目录
+     * INodeFile 代表文件
+     *
+     */
+
+    // 封装一个目录
     final INodeDirectory dir = new INodeDirectory(inodeId, name, permission,
         timestamp);
 
+    // TODO 往文件目录树添加目录的地方该添加节点
     INodesInPath iip = fsd.addLastINode(parent, dir, true);
     if (iip != null && aclEntries != null) {
       AclStorage.updateINodeAcl(dir, aclEntries, Snapshot.CURRENT_STATE_ID);
