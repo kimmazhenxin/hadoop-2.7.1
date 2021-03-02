@@ -43,13 +43,16 @@ public class EditsDoubleBuffer {
   private final int initBufferSize;
 
   public EditsDoubleBuffer(int defaultBufferSize) {
+    //512KB
     initBufferSize = defaultBufferSize;
+    //两个内存大小
     bufCurrent = new TxnBuffer(initBufferSize);
     bufReady = new TxnBuffer(initBufferSize);
 
   }
     
   public void writeOp(FSEditLogOp op) throws IOException {
+    //把数据写入到bufferCurrent内存里面
     bufCurrent.writeOp(op);
   }
 

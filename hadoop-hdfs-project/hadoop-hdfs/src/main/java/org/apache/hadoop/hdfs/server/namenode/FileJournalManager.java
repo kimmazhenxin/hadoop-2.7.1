@@ -110,6 +110,9 @@ public class FileJournalManager implements JournalManager {
       int layoutVersion) throws IOException {
     try {
       currentInProgress = NNStorage.getInProgressEditsFile(sd, txid);
+      // 本质是为了后续使用 EditLogOutputStream 的write方法
+      // 如果是FileJournalManager这个对象 getCurrentStream获取当前流
+      // 本质的流是EditLogFileOutputStream 的write
       EditLogOutputStream stm = new EditLogFileOutputStream(conf,
           currentInProgress, outputBufferCapacity);
       stm.create(layoutVersion);

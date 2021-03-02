@@ -95,6 +95,12 @@ import static org.apache.hadoop.util.Time.now;
  * FSDirectory is a pure in-memory data structure, all of whose operations
  * happen entirely in memory. In contrast, FSNamesystem persists the operations
  * to the disk.
+ *
+ * TODO hadddop fs -ls /
+ *  FSDirectory和 FSNameSystem 都是管理命名空间的状态(管理元数据)
+ *  1) FSDirectory是一个直接在内存里面的数据结构,其实就是内存目录树
+ *  2) FSNameSystem是把我们的元数据记录信息持久化到磁盘上面的(先写内存,再写磁盘)
+ *
  * @see org.apache.hadoop.hdfs.server.namenode.FSNamesystem
  **/
 @InterfaceAudience.Private
@@ -129,6 +135,7 @@ public class FSDirectory implements Closeable {
   public final static byte[] DOT_INODES = 
       DFSUtil.string2Bytes(DOT_INODES_STRING);
 
+  // 根目录
   INodeDirectory rootDir;
   private final FSNamesystem namesystem;
   private volatile boolean skipQuotaCheck = false; //skip while consuming edits
@@ -956,6 +963,7 @@ public class FSDirectory implements Closeable {
               + "existing file or directory to another name before upgrading "
               + "to the new release.");
     }
+    //TODO 获取父目录 比如例子中的warehouse
     final INodeDirectory parent = existing.getINode(pos - 1).asDirectory();
     // The filesystem limits are not really quotas, so this check may appear
     // odd. It's because a rename operation deletes the src, tries to add
@@ -977,6 +985,7 @@ public class FSDirectory implements Closeable {
     boolean isRename = (inode.getParent() != null);
     boolean added;
     try {
+      //TODO 往父目录添加子节点
       added = parent.addChild(inode, true, existing.getLatestSnapshotId());
     } catch (QuotaExceededException e) {
       updateCountNoQuotaCheck(existing, pos, counts.negation());
