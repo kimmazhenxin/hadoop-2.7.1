@@ -87,6 +87,7 @@ class HeartbeatManager implements DatanodeStatistics {
   }
 
   void activate(Configuration conf) {
+    //TODO 启动了管理心跳的后台线程
     heartbeatThread.start();
   }
 
@@ -203,7 +204,9 @@ class HeartbeatManager implements DatanodeStatistics {
 
   synchronized void addDatanode(final DatanodeDescriptor d) {
     // update in-service node count
+    // 往各种数据结构里面存东西
     stats.add(d);
+    // 往datanodes 这个List里面加入DataNode的信息
     datanodes.add(d);
     d.isAlive = true;
   }
@@ -221,6 +224,7 @@ class HeartbeatManager implements DatanodeStatistics {
       int xceiverCount, int failedVolumes,
       VolumeFailureSummary volumeFailureSummary) {
     stats.subtract(node);
+    //TODO 重要的代码
     node.updateHeartbeat(reports, cacheCapacity, cacheUsed,
       xceiverCount, failedVolumes, volumeFailureSummary);
     stats.add(node);
@@ -283,7 +287,12 @@ class HeartbeatManager implements DatanodeStatistics {
       int numOfStaleNodes = 0;
       int numOfStaleStorages = 0;
       synchronized(this) {
+        //TODO 本质就是遍历datanodes这个List,它是在DataNode向NameNode注册时被初始化的
+        //  遍历,判断每一个DataNode是否是Dead
         for (DatanodeDescriptor d : datanodes) {
+          //TODO 这里就是判断一个DataNode是否Dead
+          //  什么情况下,50070这个界面或者说NameNode就认为DataNode已经处于Dead状态呢?
+          // isDatanodeDead(d)这个方法可以发现,间隔是 10min30s ,也就是说如果一个DataNode超过10min30s没有发送心跳,那么NameNode就会认为它处于Dead状态
           if (dead == null && dm.isDatanodeDead(d)) {
             stats.incrExpiredHeartbeats();
             dead = d;
@@ -354,7 +363,10 @@ class HeartbeatManager implements DatanodeStatistics {
       while(namesystem.isRunning()) {
         try {
           final long now = Time.monotonicNow();
+
+          // TODO heartbeatRecheckInterval 为5min,也就是每隔5min这个后台线程就会去检查所有DataNode的心跳,看是否有Dead
           if (lastHeartbeatCheck + heartbeatRecheckInterval < now) {
+            //TODO  心跳检查,这个线程很重要,是NameNode后续判断DataNode是否Dead的方式
             heartbeatCheck();
             lastHeartbeatCheck = now;
           }

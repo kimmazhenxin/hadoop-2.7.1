@@ -82,6 +82,9 @@ public class DatanodeHttpServer implements Closeable {
 
     Configuration confForInfoServer = new Configuration(conf);
     confForInfoServer.setInt(HttpServer2.HTTP_MAX_THREADS, 10);
+
+    //TODO NameNode启动的时候也启动了HttpServer2
+    // 用来接收Http请求
     HttpServer2.Builder builder = new HttpServer2.Builder()
         .setName("datanode")
         .setConf(confForInfoServer)
@@ -92,6 +95,7 @@ public class DatanodeHttpServer implements Closeable {
 
     this.infoServer = builder.build();
 
+    //TODO 往这个HttpServer绑定了多个Servlet
     this.infoServer.addInternalServlet(null, "/streamFile/*", StreamFile.class);
     this.infoServer.addInternalServlet(null, "/getFileChecksum/*",
         FileChecksumServlets.GetServlet.class);
@@ -101,6 +105,7 @@ public class DatanodeHttpServer implements Closeable {
     this.infoServer.addServlet(null, "/blockScannerReport",
                                BlockScanner.Servlet.class);
 
+    //TODO 启动了Http服务
     this.infoServer.start();
     final InetSocketAddress jettyAddr = infoServer.getConnectorAddress(0);
 

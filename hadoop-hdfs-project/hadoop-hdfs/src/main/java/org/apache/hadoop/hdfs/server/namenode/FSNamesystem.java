@@ -1064,7 +1064,6 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     writeLock();
     this.haContext = haContext;
     try {
-
       /**
        * NameNode资源检查: 通过core-site.xml、hdfs-site.xml两个文件就知道元数据存在哪里了?
        * (1) NameNode有两个目录: 存储fsimage的目录、存储editlog的目录,但是一般情况下或者默认情况下两者使用的是同一个目录
@@ -4560,7 +4559,9 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
   void registerDatanode(DatanodeRegistration nodeReg) throws IOException {
     writeLock();
     try {
+      //TODO DataNodeManager处理关于DataNode的事
       getBlockManager().getDatanodeManager().registerDatanode(nodeReg);
+      //检查安全模式
       checkSafeMode();
     } finally {
       writeUnlock();
@@ -4597,6 +4598,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       //get datanode commands
       final int maxTransfer = blockManager.getMaxReplicationStreams()
           - xmitsInProgress;
+
+      //TODO 1) NameNode处理DataNode发送过来的心跳
       DatanodeCommand[] cmds = blockManager.getDatanodeManager().handleHeartbeat(
           nodeReg, reports, blockPoolId, cacheCapacity, cacheUsed,
           xceiverCount, maxTransfer, failedVolumes, volumeFailureSummary);
@@ -4606,6 +4609,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
           haContext.getState().getServiceState(),
           getFSImage().getLastAppliedOrWrittenTxId());
 
+      //TODO 2) 给DataNode返回一些响应
       return new HeartbeatResponse(cmds, haState, rollingUpgradeInfo);
     } finally {
       readUnlock();

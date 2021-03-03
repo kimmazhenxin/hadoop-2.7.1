@@ -229,6 +229,9 @@ class NameNodeRpcServer implements NamenodeProtocols {
     RPC.setProtocolEngine(conf, ClientNamenodeProtocolPB.class,
         ProtobufRpcEngine.class);
 
+
+    //TODO 如下就是一堆协议,协议里面就会有一堆方法
+    //  客户端调用NameNode的那些方法,都在这个协议里面
     ClientNamenodeProtocolServerSideTranslatorPB 
        clientProtocolServerTranslator = 
          new ClientNamenodeProtocolServerSideTranslatorPB(this);
@@ -343,6 +346,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
     }
     LOG.info("RPC server is binding to " + bindHost + ":" + rpcAddr.getPort());
 
+    //TODO 这个服务就是客户端用来操作NameNode的协议,也就是接收客户端发送过来的请求
     this.clientRpcServer = new RPC.Builder(conf)
         .setProtocol(
             org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolPB.class)
@@ -1276,8 +1280,10 @@ class NameNodeRpcServer implements NamenodeProtocols {
   @Override // DatanodeProtocol
   public DatanodeRegistration registerDatanode(DatanodeRegistration nodeReg)
       throws IOException {
+    //TODO 检测NameNode是否启动起来了
     checkNNStartup();
     verifySoftwareVersion(nodeReg);
+    //TODO 注册DataNode
     namesystem.registerDatanode(nodeReg);
     return nodeReg;
   }
@@ -1288,8 +1294,10 @@ class NameNodeRpcServer implements NamenodeProtocols {
       int xmitsInProgress, int xceiverCount,
       int failedVolumes, VolumeFailureSummary volumeFailureSummary)
       throws IOException {
+      //TODO 检测NameNode是否启动起来了
     checkNNStartup();
     verifyRequest(nodeReg);
+    //TODO 处理DataNode发送过来的心跳
     return namesystem.handleHeartbeat(nodeReg, report,
         dnCacheCapacity, dnCacheUsed, xceiverCount, xmitsInProgress,
         failedVolumes, volumeFailureSummary);

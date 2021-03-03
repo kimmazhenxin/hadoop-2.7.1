@@ -211,6 +211,7 @@ class BPServiceActor implements Runnable {
 
   private void connectToNNAndHandshake() throws IOException {
     // get NN proxy
+    //TODO 获取到NameNode的代码,也就是NameNode的客户端
     bpNamenode = dn.connectToNN(nnAddr);
 
     // First phase of the handshake with NN - get the namespace
@@ -220,9 +221,11 @@ class BPServiceActor implements Runnable {
     // Verify that this matches the other NN in this HA pair.
     // This also initializes our block pool in the DN if we are
     // the first NN connection for this BP.
+    //TODO 校验NamespaceInfo的信息
     bpos.verifyAndSetNamespaceInfo(nsInfo);
     
     // Second phase of the handshake with the NN.
+    //TODO 注册
     register(nsInfo);
   }
 
@@ -537,19 +540,29 @@ class BPServiceActor implements Runnable {
     }
     return cmd;
   }
-  
+
+  /**
+   * DataNode向NameNode发送心跳信息
+   * @return  返回NameNode发送给DataNode的一些指令
+   * @throws IOException
+   */
   HeartbeatResponse sendHeartBeat() throws IOException {
+    //TODO 每隔3秒要运行一次
     StorageReport[] reports =
         dn.getFSDataset().getStorageReports(bpos.getBlockPoolId());
     if (LOG.isDebugEnabled()) {
       LOG.debug("Sending heartbeat with " + reports.length +
                 " storage reports from service actor: " + this);
     }
-    
+
+    //TODO 比如HDFS的50070界面,之所以会显示DataNode信息,就是因为心跳发送了一些信息
     VolumeFailureSummary volumeFailureSummary = dn.getFSDataset()
         .getVolumeFailureSummary();
     int numFailedVolumes = volumeFailureSummary != null ?
         volumeFailureSummary.getFailedStorageLocations().length : 0;
+
+    //TODO 发送心跳
+    //  获取到NameNode的代理,发送心跳,实际是调用NameNodeRpcServer的该方法.
     return bpNamenode.sendHeartbeat(bpRegistration,
         reports,
         dn.getFSDataset().getCacheCapacity(),
@@ -568,6 +581,7 @@ class BPServiceActor implements Runnable {
     }
     bpThread = new Thread(this, formatThreadName());
     bpThread.setDaemon(true); // needed for JUnit testing
+    //TODO 启动线程,接下来看run()方法
     bpThread.start();
   }
   
@@ -639,9 +653,10 @@ class BPServiceActor implements Runnable {
         //
         // Every so often, send heartbeat or block-report
         //
+        //TODO 心跳是每3秒进行一次
         final boolean sendHeartbeat = scheduler.isHeartbeatDue(startTime);
         if (sendHeartbeat) {
-          //
+          //TODO 心跳包含的信息
           // All heartbeat messages include following info:
           // -- Datanode name
           // -- data transfer port
@@ -650,6 +665,12 @@ class BPServiceActor implements Runnable {
           //
           scheduler.scheduleNextHeartbeat();
           if (!dn.areHeartbeatsDisabledForTests()) {
+            //TODO NameNode是不直接跟DataNode进行连接的
+            //  DataNode发送心跳给NameNode
+            //  NameNode接收到心跳以后，会返回来一些指令
+            //  DataNode接收到这些指令以后,根据这些指令做相应的操作
+
+            //TODO 发送心跳,返回来的是NameNode给的响应指令
             HeartbeatResponse resp = sendHeartBeat();
             assert resp != null;
             dn.getMetrics().addHeartbeat(scheduler.monotonicNow() - startTime);
@@ -669,6 +690,8 @@ class BPServiceActor implements Runnable {
             }
 
             long startProcessCommands = monotonicNow();
+
+            //TODO 获取到一些NameNode发送过来的指令
             if (!processCommand(resp.getCommands()))
               continue;
             long endProcessCommands = monotonicNow();
@@ -744,6 +767,7 @@ class BPServiceActor implements Runnable {
   void register(NamespaceInfo nsInfo) throws IOException {
     // The handshake() phase loaded the block pool storage
     // off disk - so update the bpRegistration object from that info
+    //TODO 创建要注册的一些信息
     bpRegistration = bpos.createRegistration();
 
     LOG.info(this + " beginning handshake with NN");
@@ -751,7 +775,9 @@ class BPServiceActor implements Runnable {
     while (shouldRun()) {
       try {
         // Use returned registration from namenode with updated fields
+        //TODO 注意: bpNameNode是NameNode的代理,这里实际执行的是NameNodeRPCServer的registerDatanode方法!!!
         bpRegistration = bpNamenode.registerDatanode(bpRegistration);
+        //TODO 如果执行到这里,那么说明注册过程已经完成了.
         bpRegistration.setNamespaceInfo(nsInfo);
         break;
       } catch(EOFException e) {  // namenode might have just restarted
@@ -793,11 +819,18 @@ class BPServiceActor implements Runnable {
   public void run() {
     LOG.info(this + " starting to offer service");
 
+    //TODO 注册和心跳
     try {
+      //TODO while()里面执行注册
       while (true) {
         // init stuff
         try {
           // setup storage
+
+          //TODO 1) 重要: 注册的核心代码!!!
+          // 学习这里的代码结构,它这里这么设计目的是千方百计地保证这个核心方法connectToNNAndHandshake()执行成功.
+          //  1) DataNode -> NameNode 网络通信,不稳定
+          //  2) 可能保证这个方法执行成功
           connectToNNAndHandshake();
           break;
         } catch (IOException ioe) {
@@ -807,6 +840,8 @@ class BPServiceActor implements Runnable {
             // Retry until all namenode's of BPOS failed initialization
             LOG.error("Initialization failed for " + this + " "
                 + ioe.getLocalizedMessage());
+
+            //TODO 如果有问题睡眠5秒,方便下次循环再次执行注册代码
             sleepAndLogInterrupts(5000, "initializing");
           } else {
             runningState = RunningState.FAILED;
@@ -814,12 +849,15 @@ class BPServiceActor implements Runnable {
             return;
           }
         }
-      }
+      } //TODO  到这里注册就结束了
+
 
       runningState = RunningState.RUNNING;
 
       while (shouldRun()) {
         try {
+
+          //TODO 2) 重要: 发送心跳!!!
           offerService();
         } catch (Exception ex) {
           LOG.error("Exception in BPOfferService for " + this, ex);
@@ -1037,6 +1075,7 @@ class BPServiceActor implements Runnable {
 
     long scheduleNextHeartbeat() {
       // Numerical overflow is possible here and is okay.
+      //TODO 下一次发送心跳的时间,很明显,时间间隔是 heartbeatIntervalMs(3S)
       nextHeartbeatTime += heartbeatIntervalMs;
       return nextHeartbeatTime;
     }
