@@ -470,6 +470,7 @@ public class DataNode extends ReconfigurableBase
     try {
       hostName = getHostName(conf);
       LOG.info("Configured hostname is " + hostName);
+      //TODO 启动DataNode
       startDataNode(conf, dataDirs, resources);
     } catch (IOException ie) {
       shutdown();
@@ -801,7 +802,9 @@ public class DataNode extends ReconfigurableBase
     ServerSocketChannel httpServerChannel = secureResources != null ?
         secureResources.getHttpServerChannel() : null;
 
+    //TODO 重要,实例初始化DataNodeHttpServer,里面有绑定多个Servlet
     this.httpServer = new DatanodeHttpServer(conf, this, httpServerChannel);
+    //TODO 启动HttpServer服务
     httpServer.start();
     if (httpServer.getHttpAddress() != null) {
       infoPort = httpServer.getHttpAddress().getPort();
@@ -833,8 +836,12 @@ public class DataNode extends ReconfigurableBase
         ProtobufRpcEngine.class);
     ClientDatanodeProtocolServerSideTranslatorPB clientDatanodeProtocolXlator = 
           new ClientDatanodeProtocolServerSideTranslatorPB(this);
+
+    //TODO 处理客户端和DataNode之间的请求
     BlockingService service = ClientDatanodeProtocolService
         .newReflectiveBlockingService(clientDatanodeProtocolXlator);
+
+    //TODO 这个代码就是用来创建一个RPC的服务端, jps
     ipcServer = new RPC.Builder(conf)
         .setProtocol(ClientDatanodeProtocolPB.class)
         .setInstance(service)
@@ -847,8 +854,12 @@ public class DataNode extends ReconfigurableBase
     
     InterDatanodeProtocolServerSideTranslatorPB interDatanodeProtocolXlator = 
         new InterDatanodeProtocolServerSideTranslatorPB(this);
+
+    //TODO DataNode和DataNode之间进行通信的协议
     service = InterDatanodeProtocolService
         .newReflectiveBlockingService(interDatanodeProtocolXlator);
+
+
     DFSUtil.addPBProtocol(conf, InterDatanodeProtocolPB.class, service,
         ipcServer);
 
@@ -942,7 +953,13 @@ public class DataNode extends ReconfigurableBase
     streamingAddr = tcpPeerServer.getStreamingAddr();
     LOG.info("Opened streaming server at " + streamingAddr);
     this.threadGroup = new ThreadGroup("dataXceiverServer");
+
+    //TODO 重要代码!!!
+    //  实例化了一个DataXceiverServer
+    //  这个服务就是DataNode用来接收客户端和其它DataNode传过来数据的服务。
     xserver = new DataXceiverServer(tcpPeerServer, conf, this);
+
+    //设置为后台线程
     this.dataXceiverServer = new Daemon(threadGroup, xserver);
     this.threadGroup.setDaemon(true); // auto destroy when empty
 
@@ -1145,11 +1162,16 @@ public class DataNode extends ReconfigurableBase
     LOG.info("Starting DataNode with maxLockedMemory = " +
         dnConf.maxLockedMemory);
 
+    //TODO 实例化DataStorage
     storage = new DataStorage();
     
     // global DN settings
     registerMXBean();
+
+    //TODO 初始化DataXceiverServer
     initDataXceiver(conf);
+
+    //TODO 启动HttpServer服务
     startInfoServer(conf);
     pauseMonitor = new JvmPauseMonitor(conf);
     pauseMonitor.start();
@@ -1161,12 +1183,26 @@ public class DataNode extends ReconfigurableBase
     dnUserName = UserGroupInformation.getCurrentUser().getShortUserName();
     LOG.info("dnUserName = " + dnUserName);
     LOG.info("supergroup = " + supergroup);
+
+    //TODO 初始化RPC的服务
     initIpcServer(conf);
 
     metrics = DataNodeMetrics.create(conf, getDisplayName());
     metrics.getJvmMetrics().setPauseMonitor(pauseMonitor);
-    
+
+
+    //TODO 重要!!! 初始化BlockPoolManager,其中BlockPool(块池)
+    //  BlockPool,正常情况下一个集群就有一个BlockPool
+    //  如果我们是联邦机制,那么就有多个NameNode,也就会有多个联邦,一个联邦就是一个BlockPool
+    //  假设一个集群里面: 4个NameNode: 2个联邦
+    //  联邦一: hadoop1(Active)、hadoop2(StandBy)(BlockPool是同一个)
+    //  联邦二: hadoop3(Active)、hadoop4(StandBy)(BlockPool是同一个)
     blockPoolManager = new BlockPoolManager(this);
+
+
+    //TODO 非常重要!!!,做两件事:
+    // 1) 向NameNode进行注册
+    // 2) 跟NameNode进行心跳
     blockPoolManager.refreshNamenodes(conf);
 
     // Create the ReadaheadPool from the DataNode context so we can
@@ -2302,6 +2338,7 @@ public class DataNode extends ReconfigurableBase
     UserGroupInformation.setConfiguration(conf);
     SecurityUtil.login(conf, DFS_DATANODE_KEYTAB_FILE_KEY,
         DFS_DATANODE_KERBEROS_PRINCIPAL_KEY);
+    //TODO 重要代码
     return makeInstance(dataLocations, conf, resources);
   }
 
@@ -2415,6 +2452,7 @@ public class DataNode extends ReconfigurableBase
     DefaultMetricsSystem.initialize("DataNode");
 
     assert locations.size() > 0 : "number of data directories should be > 0";
+    //TODO 重要代码
     return new DataNode(conf, locations, resources);
   }
 
@@ -2526,6 +2564,7 @@ public class DataNode extends ReconfigurableBase
     int errorCode = 0;
     try {
       StringUtils.startupShutdownMessage(DataNode.class, args, LOG);
+      //初始化DataNode
       DataNode datanode = createDataNode(args, null, resources);
       if (datanode != null) {
         datanode.join();

@@ -128,7 +128,9 @@ class BlockPoolManager {
           new PrivilegedExceptionAction<Object>() {
             @Override
             public Object run() throws Exception {
+              //TODO  遍历所有的BPOfferService也就是遍历所有的联邦
               for (BPOfferService bpos : offerServices) {
+                //TODO 重要!!!
                 bpos.start();
               }
               return null;
@@ -156,10 +158,17 @@ class BlockPoolManager {
             .getNNServiceRpcAddressesForCluster(conf);
 
     synchronized (refreshNamenodesLock) {
+      //TODO 重要代码
       doRefreshNamenodes(newAddressMap);
     }
   }
-  
+
+  /**
+   * TODO NameNode服务器搭建好:
+   *    NameNode上的配置文件一模一样的复制到各个DataNode节点
+   * @param addrMap
+   * @throws IOException
+   */
   private void doRefreshNamenodes(
       Map<String, Map<String, InetSocketAddress>> addrMap) throws IOException {
     assert Thread.holdsLock(refreshNamenodesLock);
@@ -172,10 +181,17 @@ class BlockPoolManager {
       // Step 1. For each of the new nameservices, figure out whether
       // it's an update of the set of NNs for an existing NS,
       // or an entirely new nameservice.
+
+      //TODO 通常情况下: HDFS集群的架构是HA架构
+      //  nameservice(hadoop1 hadoop2)
+      //  如果是联邦架构,里面就会有多个nameservice
+      // hadoop1,hadoop2  ->  联邦1 NameService1
+      // hadoop3,hadoop4  ->  联邦2 NameService2
       for (String nameserviceId : addrMap.keySet()) {
         if (bpByNameserviceId.containsKey(nameserviceId)) {
           toRefresh.add(nameserviceId);
         } else {
+          //TODO toAdd里面有多少个联邦,一个联邦就是一个NameService
           toAdd.add(nameserviceId);
         }
       }
@@ -196,15 +212,27 @@ class BlockPoolManager {
       if (!toAdd.isEmpty()) {
         LOG.info("Starting BPOfferServices for nameservices: " +
             Joiner.on(",").useForNull("<default>").join(toAdd));
-      
+
+
+        //TODO 遍历所有的联邦,一个联邦里面会有多个NameNode(HA)
+        //  如果是两个联邦,那么这个地方就会有两个值
+        //  BPOfferService  ->  一个联邦
         for (String nsToAdd : toAdd) {
           ArrayList<InetSocketAddress> addrs =
             Lists.newArrayList(addrMap.get(nsToAdd).values());
+
+          //TODO 重要关系
+          //  一个联邦对应一个BPOfferService(BP代表之前说的BlockPool)
+          //  一个联邦里面的NameNode就是一个BPServiceActor
+          //  也就是正常来说一个BPOfferService对应两个BPServiceActor
+          //  通过配置文件core-site.xml、hdfs-site.xml
           BPOfferService bpos = createBPOS(addrs);
           bpByNameserviceId.put(nsToAdd, bpos);
           offerServices.add(bpos);
         }
       }
+
+      //TODO  DataNode向NameNode进行注册和心跳!!!
       startAll();
     }
 
