@@ -540,19 +540,29 @@ class BPServiceActor implements Runnable {
     }
     return cmd;
   }
-  
+
+  /**
+   * DataNode向NameNode发送心跳信息
+   * @return  返回NameNode发送给DataNode的一些指令
+   * @throws IOException
+   */
   HeartbeatResponse sendHeartBeat() throws IOException {
+    //TODO 每隔3秒要运行一次
     StorageReport[] reports =
         dn.getFSDataset().getStorageReports(bpos.getBlockPoolId());
     if (LOG.isDebugEnabled()) {
       LOG.debug("Sending heartbeat with " + reports.length +
                 " storage reports from service actor: " + this);
     }
-    
+
+    //TODO 比如HDFS的50070界面,之所以会显示DataNode信息,就是因为心跳发送了一些信息
     VolumeFailureSummary volumeFailureSummary = dn.getFSDataset()
         .getVolumeFailureSummary();
     int numFailedVolumes = volumeFailureSummary != null ?
         volumeFailureSummary.getFailedStorageLocations().length : 0;
+
+    //TODO 发送心跳
+    //  获取到NameNode的代理,发送心跳,实际是调用NameNodeRpcServer的该方法.
     return bpNamenode.sendHeartbeat(bpRegistration,
         reports,
         dn.getFSDataset().getCacheCapacity(),
@@ -643,9 +653,10 @@ class BPServiceActor implements Runnable {
         //
         // Every so often, send heartbeat or block-report
         //
+        //TODO 心跳是每3秒进行一次
         final boolean sendHeartbeat = scheduler.isHeartbeatDue(startTime);
         if (sendHeartbeat) {
-          //
+          //TODO 心跳包含的信息
           // All heartbeat messages include following info:
           // -- Datanode name
           // -- data transfer port
@@ -654,6 +665,12 @@ class BPServiceActor implements Runnable {
           //
           scheduler.scheduleNextHeartbeat();
           if (!dn.areHeartbeatsDisabledForTests()) {
+            //TODO NameNode是不直接跟DataNode进行连接的
+            //  DataNode发送心跳给NameNode
+            //  NameNode接收到心跳以后，会返回来一些指令
+            //  DataNode接收到这些指令以后,根据这些指令做相应的操作
+
+            //TODO 发送心跳,返回来的是NameNode给的响应指令
             HeartbeatResponse resp = sendHeartBeat();
             assert resp != null;
             dn.getMetrics().addHeartbeat(scheduler.monotonicNow() - startTime);
@@ -673,6 +690,8 @@ class BPServiceActor implements Runnable {
             }
 
             long startProcessCommands = monotonicNow();
+
+            //TODO 获取到一些NameNode发送过来的指令
             if (!processCommand(resp.getCommands()))
               continue;
             long endProcessCommands = monotonicNow();
@@ -808,7 +827,7 @@ class BPServiceActor implements Runnable {
         try {
           // setup storage
 
-          //TODO 1) 注册的核心代码!!!
+          //TODO 1) 重要: 注册的核心代码!!!
           // 学习这里的代码结构,它这里这么设计目的是千方百计地保证这个核心方法connectToNNAndHandshake()执行成功.
           //  1) DataNode -> NameNode 网络通信,不稳定
           //  2) 可能保证这个方法执行成功
@@ -1056,6 +1075,7 @@ class BPServiceActor implements Runnable {
 
     long scheduleNextHeartbeat() {
       // Numerical overflow is possible here and is okay.
+      //TODO 下一次发送心跳的时间,很明显,时间间隔是 heartbeatIntervalMs(3S)
       nextHeartbeatTime += heartbeatIntervalMs;
       return nextHeartbeatTime;
     }

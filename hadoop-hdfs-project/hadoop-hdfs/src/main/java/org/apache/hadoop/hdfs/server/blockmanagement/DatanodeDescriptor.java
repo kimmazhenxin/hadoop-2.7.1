@@ -400,6 +400,7 @@ public class DatanodeDescriptor extends DatanodeInfo {
   public void updateHeartbeat(StorageReport[] reports, long cacheCapacity,
       long cacheUsed, int xceiverCount, int volFailures,
       VolumeFailureSummary volumeFailureSummary) {
+    //TODO 重要代码
     updateHeartbeatState(reports, cacheCapacity, cacheUsed, xceiverCount,
         volFailures, volumeFailureSummary);
     heartbeatedSinceRegistration = true;
@@ -453,10 +454,15 @@ public class DatanodeDescriptor extends DatanodeInfo {
           storageMap.values());
     }
 
+    //TODO 1) 更改存储信息
     setCacheCapacity(cacheCapacity);
     setCacheUsed(cacheUsed);
     setXceiverCount(xceiverCount);
+
+    //TODO 2) 修改DataNode上一次的心跳时间(非常重要!!!)
     setLastUpdate(Time.now());
+
+
     setLastUpdateMonotonic(Time.monotonicNow());
     this.volumeFailures = volFailures;
     this.volumeFailureSummary = volumeFailureSummary;

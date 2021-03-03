@@ -673,7 +673,7 @@ public class NameNode implements NameNodeStatusMXBean {
      *      50070(界面)
      */
     if (NamenodeRole.NAMENODE == role) {
-      // TODO 启动HTTPServer服务, 里面绑定了很多Servlet,它本质就是个HttpServer RPC
+      // TODO 1) 启动HTTPServer服务, 里面绑定了很多Servlet,它本质就是个HttpServer RPC
       startHttpServer(conf);
     }
 
@@ -681,7 +681,7 @@ public class NameNode implements NameNodeStatusMXBean {
       SpanReceiverHost.get(conf, DFSConfigKeys.DFS_SERVER_HTRACE_PREFIX);
 
     /**
-     * TODO 重点!!! 加载元数据
+     * TODO 2) 重点!!! 加载元数据
      * 加载元数据这个流程,在集群刚启动的时候, 不做重点分析(集群刚启动没有元数据)
      * 在后面分析管理元数据的时候,会再次回头分析
      *
@@ -690,7 +690,7 @@ public class NameNode implements NameNodeStatusMXBean {
 
 
     /**
-     * 重点！！！ 这个就是Hadoop RPC
+     * TODO 3) 重点！！！ 这个就是Hadoop RPC
      */
     rpcServer = createRpcServer(conf);
     if (clientNamenodeAddress == null) {
@@ -711,7 +711,7 @@ public class NameNode implements NameNodeStatusMXBean {
     metrics.getJvmMetrics().setPauseMonitor(pauseMonitor);
 
     /**
-     * 启动一些公共的服务。 NameNode RPC 服务就是在这个里面启动的
+     * TODO 4) 启动一些公共的服务。 NameNode RPC 服务就是在这个里面启动的
      * 1) 进行资源检查, 检查是否有磁盘空间足够存储元数据
      * 2) 进入安全模式检查, 检查是否可以退出安全模式
      */
@@ -1629,6 +1629,7 @@ public class NameNode implements NameNodeStatusMXBean {
 
     try {
       StringUtils.startupShutdownMessage(NameNode.class, argv, LOG);
+      //TODO NameNode启动
       NameNode namenode = createNameNode(argv, null);
       if (namenode != null) {
         namenode.join();

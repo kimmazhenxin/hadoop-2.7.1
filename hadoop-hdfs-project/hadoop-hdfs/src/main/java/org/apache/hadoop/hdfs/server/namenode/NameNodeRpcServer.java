@@ -1294,8 +1294,10 @@ class NameNodeRpcServer implements NamenodeProtocols {
       int xmitsInProgress, int xceiverCount,
       int failedVolumes, VolumeFailureSummary volumeFailureSummary)
       throws IOException {
+      //TODO 检测NameNode是否启动起来了
     checkNNStartup();
     verifyRequest(nodeReg);
+    //TODO 处理DataNode发送过来的心跳
     return namesystem.handleHeartbeat(nodeReg, report,
         dnCacheCapacity, dnCacheUsed, xceiverCount, xmitsInProgress,
         failedVolumes, volumeFailureSummary);

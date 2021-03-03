@@ -449,7 +449,9 @@ public class BlockManager {
   }
 
   public void activate(Configuration conf) {
+    //TODO 1) 启动了等待复制的线程
     pendingReplications.start();
+    //TODO 2) 启动了管理心跳的服务(重要!!!!!!)
     datanodeManager.activate(conf);
     this.replicationThread.start();
   }
