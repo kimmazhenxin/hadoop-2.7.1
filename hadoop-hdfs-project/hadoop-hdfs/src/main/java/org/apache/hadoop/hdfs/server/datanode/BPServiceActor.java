@@ -857,7 +857,7 @@ class BPServiceActor implements Runnable {
       while (shouldRun()) {
         try {
 
-          //TODO 2) 重要: 发送心跳!!!
+          //TODO 2) 重要: 发送心跳的核心代码!!!
           offerService();
         } catch (Exception ex) {
           LOG.error("Exception in BPOfferService for " + this, ex);

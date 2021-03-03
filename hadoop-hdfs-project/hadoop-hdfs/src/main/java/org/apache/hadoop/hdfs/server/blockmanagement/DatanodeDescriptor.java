@@ -460,6 +460,7 @@ public class DatanodeDescriptor extends DatanodeInfo {
     setXceiverCount(xceiverCount);
 
     //TODO 2) 修改DataNode上一次的心跳时间(非常重要!!!)
+    //  这一步非常重要,目的是后续通过这个上一次的心跳时间,判断这个DataNode是否处于Dead状态(在NameNode启动时会启动一个后台线程HeartbeatManager.heartbeatCheck(),它就是后续做这件事的)
     setLastUpdate(Time.now());
 
 
