@@ -295,7 +295,7 @@ class HeartbeatManager implements DatanodeStatistics {
           // isDatanodeDead(d)这个方法可以发现,间隔是 10min30s ,也就是说如果一个DataNode超过10min30s没有发送心跳,那么NameNode就会认为它处于Dead状态
           if (dead == null && dm.isDatanodeDead(d)) {
             stats.incrExpiredHeartbeats();
-            dead = d;
+            dead = d; //说明DataNode有问题
           }
           if (d.isStale(dm.getStaleInterval())) {
             numOfStaleNodes++;
@@ -329,6 +329,7 @@ class HeartbeatManager implements DatanodeStatistics {
             return;
           }
           synchronized(this) {
+            //会将状态为Dead的DataNode节点信息从之前注册到NameNode的一系列内存结构中移除
             dm.removeDeadDatanode(dead);
           }
         } finally {

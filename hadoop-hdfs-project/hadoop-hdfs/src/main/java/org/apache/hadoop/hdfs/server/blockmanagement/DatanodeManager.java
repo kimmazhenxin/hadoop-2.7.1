@@ -1357,7 +1357,7 @@ public class DatanodeManager {
       synchronized (datanodeMap) {
         DatanodeDescriptor nodeinfo = null;
         try {
-          //TODO  从已有的datanodeMap(TreeMap) 里面获取注册过来的DataNode信息
+          //TODO  1) 从已有的datanodeMap(TreeMap) 里面获取注册过来的DataNode信息
           //  如果能获取到这个dataNode的信息,说明以前就注册过了
           //  但是如果是第一次,那么dataNodeMap里面是没有信息的
           nodeinfo = getDatanode(nodeReg);
@@ -1375,7 +1375,7 @@ public class DatanodeManager {
           return new DatanodeCommand[]{RegisterCommand.REGISTER};
         }
 
-        //TODO !!!更新心跳的重要的信息
+        //TODO 2) !!!更新心跳的重要的信息
         heartbeatManager.updateHeartbeat(nodeinfo, reports,
                                          cacheCapacity, cacheUsed,
                                          xceiverCount, failedVolumes,
