@@ -145,6 +145,7 @@ class JournalNodeRpcServer implements QJournalProtocol {
   public void journal(RequestInfo reqInfo,
       long segmentTxId, long firstTxnId,
       int numTxns, byte[] records) throws IOException {
+    //TODO 调用这个方法向JournalNode发送editlog
     jn.getOrCreateJournal(reqInfo.getJournalId())
        .journal(reqInfo, segmentTxId, firstTxnId, numTxns, records);
   }

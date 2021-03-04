@@ -364,6 +364,7 @@ public class IPCLoggerChannel implements AsyncLogger {
       final long segmentTxId, final long firstTxnId,
       final int numTxns, final byte[] data) {
     try {
+      //TODO 放入队列
       reserveQueueSpace(data.length);
     } catch (LoggerTooFarBehindException e) {
       return Futures.immediateFailedFuture(e);

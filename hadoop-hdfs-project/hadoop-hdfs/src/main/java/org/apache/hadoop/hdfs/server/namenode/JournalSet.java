@@ -398,9 +398,9 @@ public class JournalSet implements JournalManager {
 
     List<JournalAndStream> badJAS = Lists.newLinkedList();
     for (JournalAndStream jas : journals) {
-      // journals里面有两个对象:
-      // FileJournalManager
-      // QuorumJournalManager
+      // journals在之前已经被初始化,里面有两个对象:
+      //FileJournalManager   -> 把数据写到本地的文件系统中
+      //QuorumJournalManager -> 把数据写到JournalNode里面
       try {
         closure.apply(jas);
       } catch (Throwable t) {

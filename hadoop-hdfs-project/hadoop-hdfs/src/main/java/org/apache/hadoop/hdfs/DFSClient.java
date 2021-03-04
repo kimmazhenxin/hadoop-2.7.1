@@ -240,6 +240,9 @@ import com.google.common.net.InetAddresses;
  * to communicate with a NameNode daemon, and connects 
  * directly to DataNodes to read/write block data.
  *
+ * TODO 翻译:
+ *  DFSClient类能够连接Hadoop文件系统，执行基本的文件操作.
+ *  该类通过ClientProtocol协议(NameNodeRpcServer实现了该协议)和NameNode守护进程通信,能够直接连接DataNode去读、写块数据。
  * Hadoop DFS users should obtain an instance of 
  * DistributedFileSystem, which uses DFSClient to handle
  * filesystem tasks.
@@ -2975,6 +2978,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
       permission = FsPermission.getDefault();
     }
     FsPermission masked = permission.applyUMask(dfsClientConf.uMask);
+    //TODO 执行代码
     return primitiveMkdir(src, masked, createParent);
   }
 
@@ -3005,6 +3009,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     }
     TraceScope scope = Trace.startSpan("mkdir", traceSampler);
     try {
+      //TODO 重要代码(RPC,实际是执行NameNodeRpcServer中的mkdir)
       return namenode.mkdirs(src, absPermission, createParent);
     } catch(RemoteException re) {
       throw re.unwrapRemoteException(AccessControlException.class,

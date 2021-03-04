@@ -372,10 +372,11 @@ public class Journal implements Closeable {
     boolean shouldFsync = !isLagging;
     
     curSegment.writeRaw(records, 0, records.length);
+    //TODO 内存交换
     curSegment.setReadyToFlush();
     StopWatch sw = new StopWatch();
     sw.start();
-    // 这里的本质就是调用EditLogFileOutputStream的flushAndSync方法
+    //TODO  这里的本质就是调用EditLogFileOutputStream的flushAndSync方法
     curSegment.flush(shouldFsync);
     sw.stop();
 
