@@ -55,6 +55,10 @@ import com.google.common.base.Preconditions;
  * EditLogTailer represents a thread which periodically reads from edits
  * journals and applies the transactions contained within to a given
  * FSNamesystem.
+ *
+ * TODO 翻译：
+ *  EditLogTailer 是一个后台的线程，启动了以后会周期性地区JournalNode几圈上面去读取元数据日志,
+ *  然后再把这些元数据日志应用到自己的元数据里面(内存+磁盘)
  */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
@@ -202,8 +206,10 @@ public class EditLogTailer {
     // deadlock.
     namesystem.writeLockInterruptibly();
     try {
+      //TODO 加载当前自己的元数据fsimage(从磁盘中读取到内存,为的是后续读取editlog然后和fsimage进行合并)
       FSImage image = namesystem.getFSImage();
 
+      //TODO
       long lastTxnId = image.getLastAppliedTxId();
       
       if (LOG.isDebugEnabled()) {
@@ -328,6 +334,7 @@ public class EditLogTailer {
           // state updates.
           namesystem.cpLockInterruptibly();
           try {
+            //TODO 重要代码,实际执行的EditLog读取
             doTailEdits();
           } finally {
             namesystem.cpUnlock();
