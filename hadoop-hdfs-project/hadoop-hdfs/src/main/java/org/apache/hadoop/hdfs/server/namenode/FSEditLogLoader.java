@@ -140,6 +140,7 @@ public class FSEditLogLoader {
     try {
       long startTime = monotonicNow();
       FSImage.LOG.info("Start loading edits file " + edits.getName());
+      //TODO 重要,加载editLog日志(返回读取的数目)
       long numEdits = loadEditRecords(edits, false, expectedStartingTxId,
           startOpt, recovery);
       FSImage.LOG.info("Edits file " + edits.getName() 
@@ -185,8 +186,10 @@ public class FSEditLogLoader {
     try {
       while (true) {
         try {
+          //面向对象思想,把一条元数据信息看做是一个对象
           FSEditLogOp op;
           try {
+            //TODO 这个里面的代码就是去JournalNode中读取日志了
             op = in.readOp();
             if (op == null) {
               break;
@@ -231,6 +234,7 @@ public class FSEditLogLoader {
               LOG.trace("op=" + op + ", startOpt=" + startOpt
                   + ", numEdits=" + numEdits + ", totalEdits=" + totalEdits);
             }
+            //TODO 把读取到的元数据作用到自己的元数据里(fsimage + editLog合并),其实本质就是添加到内存目录树中
             long inodeId = applyEditLogOp(op, fsDir, startOpt,
                 in.getVersion(true), lastInodeId);
             if (lastInodeId < inodeId) {
@@ -330,6 +334,7 @@ public class FSEditLogLoader {
     final boolean toAddRetryCache = fsNamesys.hasRetryCache() && op.hasRpcIds();
 
     switch (op.opCode) {
+    //TODO  读取不同类型的editLog日志
     case OP_ADD: {
       AddCloseOp addCloseOp = (AddCloseOp)op;
       final String path =
@@ -565,10 +570,13 @@ public class FSEditLogLoader {
       }
       break;
     }
+    //TODO 创建目录的日志
     case OP_MKDIR: {
+      //根据规则匹配我们这次的日志,是一个创建目录的日志
       MkdirOp mkdirOp = (MkdirOp)op;
       inodeId = getAndUpdateLastInodeId(mkdirOp.inodeId, logVersion,
           lastInodeId);
+      //TODO 把数据作用于自己的元数据里面
       FSDirMkdirOp.mkdirForEditLog(fsDir, inodeId,
           renameReservedPathsOnUpgrade(mkdirOp.path, logVersion),
           mkdirOp.permissions, mkdirOp.aclEntries, mkdirOp.timestamp);

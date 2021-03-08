@@ -826,7 +826,8 @@ public class FSImage implements Closeable {
     prog.beginPhase(Phase.LOADING_EDITS);
     
     long prevLastAppliedTxId = lastAppliedTxId;  
-    try {    
+    try {
+      //构建加载器
       FSEditLogLoader loader = new FSEditLogLoader(target, lastAppliedTxId);
       
       // Load latest edits
@@ -834,6 +835,7 @@ public class FSImage implements Closeable {
         LOG.info("Reading " + editIn + " expecting start txid #" +
               (lastAppliedTxId + 1));
         try {
+          //TODO 加载editlog日志
           loader.loadFSEdits(editIn, lastAppliedTxId + 1, startOpt, recovery);
         } finally {
           // Update lastAppliedTxId even in case of error, since some ops may

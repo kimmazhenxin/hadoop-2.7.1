@@ -138,11 +138,18 @@ public class EditLogFileInputStream extends EditLogInputStream {
     Preconditions.checkState(state == State.UNINIT);
     BufferedInputStream bin = null;
     try {
+      //TODO FStream
+      //这个Log是URLLog
+      //所以找URLLog个getInputStream()
       fStream = log.getInputStream();
+      //TODO  bin
       bin = new BufferedInputStream(fStream);
+      //TODO  tracker
       tracker = new FSEditLogLoader.PositionTrackingInputStream(bin);
+      //TODO dataIn
       dataIn = new DataInputStream(tracker);
       try {
+        //装饰器
         logVersion = readLogVersion(dataIn, verifyLayoutVersion);
       } catch (EOFException eofe) {
         throw new LogHeaderCorruptException("No header found in log");
@@ -158,8 +165,10 @@ public class EditLogFileInputStream extends EditLogInputStream {
               "flags from log");
         }
       }
+      //TODO 设计模式: 装饰器模式
       reader = new FSEditLogOp.Reader(dataIn, tracker, logVersion);
       reader.setMaxOpSize(maxOpSize);
+      //TODO UPDATE,后续执行OPEN 的 case
       state = State.OPEN;
     } finally {
       if (reader == null) {
@@ -189,6 +198,7 @@ public class EditLogFileInputStream extends EditLogInputStream {
     switch (state) {
     case UNINIT:
       try {
+        //TODO 核心方法
         init(true);
       } catch (Throwable e) {
         LOG.error("caught exception initializing " + this, e);
@@ -200,6 +210,7 @@ public class EditLogFileInputStream extends EditLogInputStream {
       Preconditions.checkState(state != State.UNINIT);
       return nextOpImpl(skipBrokenEdits);
     case OPEN:
+      //TODO 通过reader读取日志
       op = reader.readOp(skipBrokenEdits);
       if ((op != null) && (op.hasTransactionId())) {
         long txId = op.getTransactionId();
@@ -458,6 +469,12 @@ public class EditLogFileInputStream extends EditLogInputStream {
             public InputStream run() throws IOException {
               HttpURLConnection connection;
               try {
+                //TODO 最终这里我们创建了一个HttpURLConnection对象.
+                //  如果我们这儿发送的是HTTP的请求,读取的JournalNode那儿的日志
+                //  说明JournalNode启动起来的时候肯定会有一个JournalNodeHttpServer
+                //  NameNode: NamaNodeRpcServer         NameNodeHttpServer
+                //  DataNode: RpcServer                 HttpServer
+                //  JournalNode: JournalNodeRpcServer   JournalNodeHttpServer
                 connection = (HttpURLConnection)
                     connectionFactory.openConnection(url, isSpnegoEnabled);
               } catch (AuthenticationException e) {

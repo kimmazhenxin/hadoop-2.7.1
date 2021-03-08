@@ -57,6 +57,13 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * periodically waking up to take a checkpoint of the namespace.
  * When it takes a checkpoint, it saves it to its local
  * storage and then uploads it to the remote NameNode.
+ *
+ * TODO 翻译:
+ *  命名空间 = 元数据 = 目录 = fsimage
+ *  StandbyCheckpointer 是一个运行在StandByNameNode上的一个线程.
+ *  它会周期性地对命名空间做checkpoint的操作(说白了就是把内存里面目录树的信息持久化到磁盘上面)
+ *  并且会把这个数据上传到Active NameNode(用来替换 Active NameNode上面的fsimage)
+ *
  */
 @InterfaceAudience.Private
 public class StandbyCheckpointer {
@@ -161,7 +168,8 @@ public class StandbyCheckpointer {
       assert namesystem.getEditLog().isOpenForRead() :
         "Standby Checkpointer should only attempt a checkpoint when " +
         "NN is in standby mode, but the edit logs are in an unexpected state";
-      
+
+      //TODO 获取FSImage对象
       FSImage img = namesystem.getFSImage();
       
       long prevCheckpointTxId = img.getStorage().getMostRecentCheckpointTxId();
@@ -182,6 +190,7 @@ public class StandbyCheckpointer {
       } else {
         imageType = NameNodeFile.IMAGE;
       }
+      //TODO 把元数据持久化到磁盘上面
       img.saveNamespace(namesystem, imageType, canceler);
       txid = img.getStorage().getMostRecentCheckpointTxId();
       assert txid == thisCheckpointTxId : "expected to save checkpoint at txid=" +
@@ -199,11 +208,16 @@ public class StandbyCheckpointer {
     // Upload the saved checkpoint back to the active
     // Do this in a separate thread to avoid blocking transition to active
     // See HDFS-4816
+    //TODO 重点!!! 开启了一个异步的线程
     ExecutorService executor =
         Executors.newSingleThreadExecutor(uploadThreadFactory);
     Future<Void> upload = executor.submit(new Callable<Void>() {
       @Override
       public Void call() throws IOException {
+        //TODO 重要!!!
+        //  这个操作就是要把刚刚从内存里面的元数据持久化到磁盘上面的那份元数据上传到 Active 的NameNode上面去
+        //  就是替换Active的NameNode中旧的fsimage
+        //  注意: 这里替换的是全量的元数据fsimage,所以是通过HttpServer请求而不是Hadoop RPC.
         TransferFsImage.uploadImageFromStorage(activeNNAddress, conf,
             namesystem.getFSImage().getStorage(), imageType, txid, canceler);
         return null;
@@ -277,6 +291,7 @@ public class StandbyCheckpointer {
           new PrivilegedAction<Object>() {
           @Override
           public Object run() {
+            //TODO 重要代码!!!
             doWork();
             return null;
           }
@@ -306,6 +321,7 @@ public class StandbyCheckpointer {
         boolean needRollbackCheckpoint = namesystem.isNeedRollbackFsImage();
         if (!needRollbackCheckpoint) {
           try {
+            //TODO 每隔60S检查一下是否需要做checkpoint
             Thread.sleep(checkPeriod);
           } catch (InterruptedException ie) {
           }
@@ -320,22 +336,34 @@ public class StandbyCheckpointer {
           }
           
           final long now = monotonicNow();
+          //TODO checkpoint条件一: 数量达到 1000000
+          // 这儿是计算一下,我们上一次checkpoint现在距离你的数据差了多少条?
+          // 或者说大概的意思就是说我们有多少条日志没有checkpoint
           final long uncheckpointed = countUncheckpointedTxns();
+
+          //TODO checkpoint条件二:
+          // 当前时间 - 上一次checkpoint的时间
+          // 说白了这个变量代表的意思就是 已经有多久没有做checkpoint
           final long secsSinceLast = (now - lastCheckpointTime) / 1000;
-          
+
+
           boolean needCheckpoint = needRollbackCheckpoint;
           if (needCheckpoint) {
             LOG.info("Triggering a rollback fsimage for rolling upgrade.");
           } else if (uncheckpointed >= checkpointConf.getTxnCount()) {
+            //TODO 条件一: 如果距离上一次做checkpoint超过100万条日志没有做checkpoint,那么就需要做一次.
             LOG.info("Triggering checkpoint because there have been " + 
                 uncheckpointed + " txns since the last checkpoint, which " +
                 "exceeds the configured threshold " +
                 checkpointConf.getTxnCount());
+            //TODO
             needCheckpoint = true;
           } else if (secsSinceLast >= checkpointConf.getPeriod()) {
+            //TODO 条件二: 如果超过一个小时没有做checkpoint了,那么需要做一次checkpoint
             LOG.info("Triggering checkpoint because it has been " +
                 secsSinceLast + " seconds since the last checkpoint, which " +
                 "exceeds the configured interval " + checkpointConf.getPeriod());
+            //TODO
             needCheckpoint = true;
           }
           
@@ -350,6 +378,7 @@ public class StandbyCheckpointer {
           }
           
           if (needCheckpoint) {
+            //TODO 满足条件,重要执行checkpoint
             doCheckpoint();
             // reset needRollbackCheckpoint to false only when we finish a ckpt
             // for rollback image

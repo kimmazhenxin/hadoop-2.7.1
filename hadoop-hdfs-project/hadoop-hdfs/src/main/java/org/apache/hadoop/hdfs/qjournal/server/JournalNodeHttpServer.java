@@ -56,6 +56,7 @@ public class JournalNodeHttpServer {
         DFSConfigKeys.DFS_JOURNALNODE_HTTPS_ADDRESS_DEFAULT);
     InetSocketAddress httpsAddr = NetUtils.createSocketAddr(httpsAddrString);
 
+    //创建HttpServer服务
     HttpServer2.Builder builder = DFSUtil.httpServerTemplateForNNAndJN(conf,
         httpAddr, httpsAddr, "journal",
         DFSConfigKeys.DFS_JOURNALNODE_KERBEROS_INTERNAL_SPNEGO_PRINCIPAL_KEY,
@@ -64,8 +65,10 @@ public class JournalNodeHttpServer {
     httpServer = builder.build();
     httpServer.setAttribute(JN_ATTRIBUTE_KEY, localJournalNode);
     httpServer.setAttribute(JspHelper.CURRENT_CONF, conf);
+    //TODO 绑定一个Servlet, 即/getJournal
     httpServer.addInternalServlet("getJournal", "/getJournal",
         GetJournalEditServlet.class, true);
+    //TODO HttpServer2启动服务
     httpServer.start();
   }
 

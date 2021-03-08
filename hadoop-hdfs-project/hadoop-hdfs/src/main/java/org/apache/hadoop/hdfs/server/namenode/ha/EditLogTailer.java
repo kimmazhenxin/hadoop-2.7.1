@@ -209,7 +209,7 @@ public class EditLogTailer {
       //TODO 加载当前自己的元数据fsimage(从磁盘中读取到内存,为的是后续读取editlog然后和fsimage进行合并)
       FSImage image = namesystem.getFSImage();
 
-      //TODO
+      //TODO StandBynameNode  获取点前元数据日志的最后一条日志的事物ID是多少
       long lastTxnId = image.getLastAppliedTxId();
       
       if (LOG.isDebugEnabled()) {
@@ -217,6 +217,10 @@ public class EditLogTailer {
       }
       Collection<EditLogInputStream> streams;
       try {
+        //TODO 这个地方是重要的代码
+        //  需要去JournalNode上面去读取元数据
+        //  现在元数据的事物ID是1000,所以我去JournalNode上面读取日志的时候,只需要读取 1001后面的日志就可以了
+        //  设置获取JournalNode获取日志的流
         streams = editLog.selectInputStreams(lastTxnId + 1, 0, null, false);
       } catch (IOException ioe) {
         // This is acceptable. If we try to tail edits in the middle of an edits
@@ -235,6 +239,7 @@ public class EditLogTailer {
       // disk are ignored.
       long editsLoaded = 0;
       try {
+        //TODO 去JournalNode加载日志
         editsLoaded = image.loadEdits(streams, namesystem);
       } catch (EditLogInputException elie) {
         editsLoaded = elie.getNumEditsLoaded();
@@ -249,6 +254,7 @@ public class EditLogTailer {
       if (editsLoaded > 0) {
         lastLoadTimeMs = monotonicNow();
       }
+      // 更新上一次读取的事物ID,为后续使用
       lastLoadedTxnId = image.getLastAppliedTxId();
     } finally {
       namesystem.writeUnlock();

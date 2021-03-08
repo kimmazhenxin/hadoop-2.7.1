@@ -81,6 +81,14 @@ public class ImageServlet extends HttpServlet {
   private static final String LATEST_FSIMAGE_VALUE = "latest";
   private static final String IMAGE_FILE_TYPE = "imageFile";
 
+
+  /**
+   * 核心方法,处理GET请求
+   * @param request
+   * @param response
+   * @throws ServletException
+   * @throws IOException
+   */
   @Override
   public void doGet(final HttpServletRequest request,
       final HttpServletResponse response) throws ServletException, IOException {
@@ -439,6 +447,13 @@ public class ImageServlet extends HttpServlet {
     return params;
   }
 
+  /**
+   * 核心方法,处理PUT请求
+   * @param request
+   * @param response
+   * @throws ServletException
+   * @throws IOException
+   */
   @Override
   protected void doPut(final HttpServletRequest request,
       final HttpServletResponse response) throws ServletException, IOException {
@@ -481,13 +496,19 @@ public class ImageServlet extends HttpServlet {
                   return null;
                 }
 
+                //TODO 步骤一:
+                // 针对请求获取到一个输入流,不断地把数据读取过来
                 InputStream stream = request.getInputStream();
                 try {
                   long start = monotonicNow();
+                  //TODO 步骤二:
                   MD5Hash downloadImageDigest = TransferFsImage
                       .handleUploadImageRequest(request, txid,
                           nnImage.getStorage(), stream,
                           parsedParams.getFileSize(), getThrottler(conf));
+                  //TODO 步骤三:
+                  // 会把接收过来的元数据 替换 现在已经有的旧的fsimage文件(写完再替换)
+                  //  重命名文件
                   nnImage.saveDigestAndRenameCheckpointImage(nnf, txid,
                       downloadImageDigest);
                   // Metrics non-null only when used inside name node

@@ -213,6 +213,7 @@ class FSDirMkdirOp {
     final byte[] localName = iip.getLastLocalName();
     final INodesInPath existing = iip.getParentINodesInPath();
     Preconditions.checkState(existing.getLastINode() != null);
+    //重要代码
     unprotectedMkdir(fsd, inodeId, existing, localName, permissions, aclEntries,
         timestamp);
   }

@@ -216,9 +216,11 @@ public class TransferFsImage {
   public static void uploadImageFromStorage(URL fsName, Configuration conf,
       NNStorage storage, NameNodeFile nnf, long txid, Canceler canceler)
       throws IOException {
+    //TODO URL,后面使用这个URL发起HTTPServer请求替换fsimage
     URL url = new URL(fsName, ImageServlet.PATH_SPEC);
     long startTime = Time.monotonicNow();
     try {
+      //TODO 做一个上传fsImage的操作
       uploadImage(url, conf, storage, nnf, txid, canceler);
     } catch (HttpPutFailedException e) {
       if (e.getResponseCode() == HttpServletResponse.SC_CONFLICT) {
@@ -245,6 +247,7 @@ public class TransferFsImage {
       NNStorage storage, NameNodeFile nnf, long txId, Canceler canceler)
       throws IOException {
 
+    //TODO 先读取Standby本地的fsimage文件
     File imageFile = storage.findImageFile(nnf, txId);
     if (imageFile == null) {
       throw new IOException("Could not find image with txid " + txId);
@@ -266,6 +269,7 @@ public class TransferFsImage {
       connection = (HttpURLConnection) connectionFactory.openConnection(
           urlWithParams, UserGroupInformation.isSecurityEnabled());
       // Set the request to PUT
+      // TODO 设置一个PUT请求
       connection.setRequestMethod("PUT");
       connection.setDoOutput(true);
 
@@ -287,8 +291,10 @@ public class TransferFsImage {
       ImageServlet.setVerificationHeadersForPut(connection, imageFile);
 
       // Write the file to output stream.
+      // TODO 将fsimage文件通过这个HTTP PUT请求发送到Active NameNode
       writeFileToPutRequest(conf, connection, imageFile, canceler);
 
+      //返回响应为了后续判断
       int responseCode = connection.getResponseCode();
       if (responseCode != HttpURLConnection.HTTP_OK) {
         throw new HttpPutFailedException(String.format(
@@ -312,9 +318,12 @@ public class TransferFsImage {
       throws FileNotFoundException, IOException {
     connection.setRequestProperty(CONTENT_TYPE, "application/octet-stream");
     connection.setRequestProperty(CONTENT_TRANSFER_ENCODING, "binary");
+    //通过Http方式获取的流
     OutputStream output = connection.getOutputStream();
+    //输入流肯定是自己这里的,不断读自己的数据
     FileInputStream input = new FileInputStream(imageFile);
     try {
+      //TODO 流对拷,然后把数据往output 输出流里面去写,这个输出流就直接到了Active的NameNode上面
       copyFileToStream(output, imageFile, input,
           ImageServlet.getThrottler(conf), canceler);
     } finally {

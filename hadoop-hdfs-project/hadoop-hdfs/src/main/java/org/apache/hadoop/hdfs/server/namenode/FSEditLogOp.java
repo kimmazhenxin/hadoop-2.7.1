@@ -4580,6 +4580,7 @@ public abstract class FSEditLogOp {
     public FSEditLogOp readOp(boolean skipBrokenEdits) throws IOException {
       while (true) {
         try {
+          //TODO 重要代码
           return decodeOp();
         } catch (IOException e) {
           in.reset();
