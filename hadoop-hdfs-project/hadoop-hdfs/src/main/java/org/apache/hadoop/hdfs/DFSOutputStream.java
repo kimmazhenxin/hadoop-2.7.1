@@ -1617,9 +1617,15 @@ public class DFSOutputStream extends FSOutputSummer
       // number of times
       boolean shouldRetry = true;
       int retryCount = CREATE_RETRY_COUNT;
+
+      //TODO 分布式组件中常用的重试代码结构(因为分布式中网络存在很大不确定性,它必须要保证代码能执行)
       while (shouldRetry) {
         shouldRetry = false;
         try {
+          //TODO HDFS原理总结:
+          // 创建目录: 就是在目录树(元数据)上面添加一个子节点Node(INodeDirectory)
+          // 上传文件: 1) 创建文件    2) 添加契约管理机制
+          // 实际是调用服务端的代理NameNodeRpcServer的create()方法
           stat = dfsClient.namenode.create(src, masked, dfsClient.clientName,
               new EnumSetWritable<CreateFlag>(flag), createParent, replication,
               blockSize, SUPPORTED_CRYPTO_VERSIONS);

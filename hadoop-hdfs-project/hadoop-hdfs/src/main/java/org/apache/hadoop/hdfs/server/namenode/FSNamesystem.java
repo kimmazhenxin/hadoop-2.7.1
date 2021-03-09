@@ -2358,6 +2358,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
     HdfsFileStatus status = null;
     try {
+      //TODO 重点
       status = startFileInt(src, permissions, holder, clientMachine, flag,
           createParent, replication, blockSize, supportedVersions,
           logRetryCache);
@@ -2413,6 +2414,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     boolean overwrite = flag.contains(CreateFlag.OVERWRITE);
     boolean isLazyPersist = flag.contains(CreateFlag.LAZY_PERSIST);
 
+    //TODO 等待元数据的加载?(有可能集群刚启动,还没加载完元数据,这里等待一下)
     waitForLoadingFSImage();
 
     /**
@@ -2475,6 +2477,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       try {
         src = dir.resolvePath(pc, src, pathComponents);
         final INodesInPath iip = dir.getINodesInPath4Write(src);
+        //TODO 重要代码
         toRemoveBlocks = startFileInternal(
             pc, iip, permissions, holder,
             clientMachine, create, overwrite,
@@ -2597,9 +2600,12 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       INodeFile newNode = null;
 
       // Always do an implicit mkdirs for parent directory tree.
+      //TODO 获取到我们需要上传文件的目录
       Map.Entry<INodesInPath, String> parent = FSDirMkdirOp
           .createAncestorDirectories(dir, iip, permissions);
       if (parent != null) {
+        //TODO 往文件目录树里面添加INodeFile节点
+        // dir就是FSDirectory(管理目录树)
         iip = dir.addFile(parent.getKey(), parent.getValue(), permissions,
             replication, blockSize, holder, clientMachine);
         newNode = iip != null ? iip.getLastINode().asFile() : null;
@@ -2608,6 +2614,8 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       if (newNode == null) {
         throw new IOException("Unable to add " + src +  " to namespace");
       }
+
+      //TODO 添加契约
       leaseManager.addLease(newNode.getFileUnderConstructionFeature()
           .getClientName(), src);
 

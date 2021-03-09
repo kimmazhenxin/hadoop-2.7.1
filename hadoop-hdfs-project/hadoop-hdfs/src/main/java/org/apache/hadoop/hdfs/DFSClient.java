@@ -1638,6 +1638,7 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
                              int buffersize,
                              ChecksumOpt checksumOpt)
       throws IOException {
+    //TODO 重要
     return create(src, permission, flag, true,
         replication, blockSize, progress, buffersize, checksumOpt, null);
   }
@@ -1703,10 +1704,17 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory,
     if(LOG.isDebugEnabled()) {
       LOG.debug(src + ": masked=" + masked);
     }
+    //TODO 重要代码
+    // 总结:
+    // 1) 往文件目录树里面添加了文件
+    // 2) 添加了契约管理机制
+    // 3) 启动了DataStreamer
     final DFSOutputStream result = DFSOutputStream.newStreamForCreate(this,
         src, masked, flag, createParent, replication, blockSize, progress,
         buffersize, dfsClientConf.createChecksum(checksumOpt),
         getFavoredNodesStr(favoredNodes));
+
+    //TODO 开启了契约管理机制
     beginFileLease(result.getFileId(), result);
     return result;
   }

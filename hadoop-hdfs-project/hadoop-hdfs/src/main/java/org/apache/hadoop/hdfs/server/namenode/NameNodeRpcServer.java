@@ -606,6 +606,7 @@ class NameNodeRpcServer implements NamenodeProtocols {
       boolean createParent, short replication, long blockSize, 
       CryptoProtocolVersion[] supportedVersions)
       throws IOException {
+    //检查NameNode的启动状态
     checkNNStartup();
     String clientMachine = getClientMachine();
     if (stateChangeLog.isDebugEnabled()) {
@@ -626,6 +627,8 @@ class NameNodeRpcServer implements NamenodeProtocols {
     try {
       PermissionStatus perm = new PermissionStatus(getRemoteUser()
           .getShortUserName(), null, masked);
+
+      //TODO 重点代码
       status = namesystem.startFile(src, perm, clientName, clientMachine,
           flag.get(), createParent, replication, blockSize, supportedVersions,
           cacheEntry != null);
