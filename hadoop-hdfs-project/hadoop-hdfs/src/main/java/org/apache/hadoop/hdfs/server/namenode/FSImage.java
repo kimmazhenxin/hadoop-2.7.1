@@ -827,7 +827,7 @@ public class FSImage implements Closeable {
     
     long prevLastAppliedTxId = lastAppliedTxId;  
     try {
-      //构建加载器
+      //构建FSEditLogLoader加载器
       FSEditLogLoader loader = new FSEditLogLoader(target, lastAppliedTxId);
       
       // Load latest edits
@@ -840,6 +840,7 @@ public class FSImage implements Closeable {
         } finally {
           // Update lastAppliedTxId even in case of error, since some ops may
           // have been successfully applied before the error.
+          //TODO 重新赋值,记录最后一个事物ID
           lastAppliedTxId = loader.getLastAppliedTxId();
         }
         // If we are in recovery mode, we may have skipped over some txids.

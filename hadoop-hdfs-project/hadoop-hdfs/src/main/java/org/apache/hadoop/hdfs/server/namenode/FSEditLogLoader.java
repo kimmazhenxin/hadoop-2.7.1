@@ -576,7 +576,7 @@ public class FSEditLogLoader {
       MkdirOp mkdirOp = (MkdirOp)op;
       inodeId = getAndUpdateLastInodeId(mkdirOp.inodeId, logVersion,
           lastInodeId);
-      //TODO 把数据作用于自己的元数据里面
+      //TODO 把数据作用于自己的元数据里面(更新内存目录树)
       FSDirMkdirOp.mkdirForEditLog(fsDir, inodeId,
           renameReservedPathsOnUpgrade(mkdirOp.path, logVersion),
           mkdirOp.permissions, mkdirOp.aclEntries, mkdirOp.timestamp);

@@ -57,7 +57,7 @@ import com.google.common.base.Preconditions;
  * FSNamesystem.
  *
  * TODO 翻译：
- *  EditLogTailer 是一个后台的线程，启动了以后会周期性地区JournalNode几圈上面去读取元数据日志,
+ *  EditLogTailer 是一个后台的线程，启动了以后会周期性地去JournalNode集群上面去读取元数据日志,
  *  然后再把这些元数据日志应用到自己的元数据里面(内存+磁盘)
  */
 @InterfaceAudience.Private
@@ -209,7 +209,7 @@ public class EditLogTailer {
       //TODO 加载当前自己的元数据fsimage(从磁盘中读取到内存,为的是后续读取editlog然后和fsimage进行合并)
       FSImage image = namesystem.getFSImage();
 
-      //TODO StandBynameNode  获取点前元数据日志的最后一条日志的事物ID是多少
+      //TODO StandBynameNode  获取当前元数据日志的最后一条日志的事物ID是多少
       long lastTxnId = image.getLastAppliedTxId();
       
       if (LOG.isDebugEnabled()) {
@@ -239,7 +239,7 @@ public class EditLogTailer {
       // disk are ignored.
       long editsLoaded = 0;
       try {
-        //TODO 去JournalNode加载日志
+        //TODO 去JournalNode读取加载日志
         editsLoaded = image.loadEdits(streams, namesystem);
       } catch (EditLogInputException elie) {
         editsLoaded = elie.getNumEditsLoaded();
@@ -357,6 +357,7 @@ public class EditLogTailer {
         }
 
         try {
+          //TODO 每隔60s读取一次
           Thread.sleep(sleepTimeMs);
         } catch (InterruptedException e) {
           LOG.warn("Edit log tailer interrupted", e);

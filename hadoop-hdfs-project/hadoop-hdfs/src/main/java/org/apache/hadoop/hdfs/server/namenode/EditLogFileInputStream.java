@@ -198,7 +198,7 @@ public class EditLogFileInputStream extends EditLogInputStream {
     switch (state) {
     case UNINIT:
       try {
-        //TODO 核心方法
+        //TODO 核心方法,主要是初始化流.改变state=OPEN,为后续执行
         init(true);
       } catch (Throwable e) {
         LOG.error("caught exception initializing " + this, e);
@@ -500,7 +500,8 @@ public class EditLogFileInputStream extends EditLogInputStream {
                 throw new IOException(CONTENT_LENGTH + " header is not provided " +
                                       "by the server when trying to fetch " + url);
               }
-        
+
+              //TODO 通过这个对象获取到了输入流
               return connection.getInputStream();
             }
           });

@@ -190,7 +190,7 @@ public class StandbyCheckpointer {
       } else {
         imageType = NameNodeFile.IMAGE;
       }
-      //TODO 把元数据持久化到磁盘上面
+      //TODO  1)！！！把元数据持久化到磁盘上面
       img.saveNamespace(namesystem, imageType, canceler);
       txid = img.getStorage().getMostRecentCheckpointTxId();
       assert txid == thisCheckpointTxId : "expected to save checkpoint at txid=" +
@@ -208,7 +208,7 @@ public class StandbyCheckpointer {
     // Upload the saved checkpoint back to the active
     // Do this in a separate thread to avoid blocking transition to active
     // See HDFS-4816
-    //TODO 重点!!! 开启了一个异步的线程
+    //TODO 2)重点!!! 开启了一个异步的线程,执行替换Active状态的NameNode的fsimage
     ExecutorService executor =
         Executors.newSingleThreadExecutor(uploadThreadFactory);
     Future<Void> upload = executor.submit(new Callable<Void>() {
@@ -378,7 +378,7 @@ public class StandbyCheckpointer {
           }
           
           if (needCheckpoint) {
-            //TODO 满足条件,重要执行checkpoint
+            //TODO 满足条件,重要!!!执行checkpoint
             doCheckpoint();
             // reset needRollbackCheckpoint to false only when we finish a ckpt
             // for rollback image

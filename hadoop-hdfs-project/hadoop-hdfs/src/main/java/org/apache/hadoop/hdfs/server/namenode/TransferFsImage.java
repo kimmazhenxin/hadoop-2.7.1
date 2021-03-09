@@ -247,7 +247,7 @@ public class TransferFsImage {
       NNStorage storage, NameNodeFile nnf, long txId, Canceler canceler)
       throws IOException {
 
-    //TODO 先读取Standby本地的fsimage文件
+    //TODO 1)先读取Standby本地的fsimage文件
     File imageFile = storage.findImageFile(nnf, txId);
     if (imageFile == null) {
       throw new IOException("Could not find image with txid " + txId);
@@ -269,7 +269,7 @@ public class TransferFsImage {
       connection = (HttpURLConnection) connectionFactory.openConnection(
           urlWithParams, UserGroupInformation.isSecurityEnabled());
       // Set the request to PUT
-      // TODO 设置一个PUT请求
+      // TODO 2)设置一个PUT请求
       connection.setRequestMethod("PUT");
       connection.setDoOutput(true);
 
@@ -291,7 +291,7 @@ public class TransferFsImage {
       ImageServlet.setVerificationHeadersForPut(connection, imageFile);
 
       // Write the file to output stream.
-      // TODO 将fsimage文件通过这个HTTP PUT请求发送到Active NameNode
+      // TODO 3)将fsimage文件通过这个HTTP PUT请求发送到Active NameNode
       writeFileToPutRequest(conf, connection, imageFile, canceler);
 
       //返回响应为了后续判断
@@ -324,6 +324,8 @@ public class TransferFsImage {
     FileInputStream input = new FileInputStream(imageFile);
     try {
       //TODO 流对拷,然后把数据往output 输出流里面去写,这个输出流就直接到了Active的NameNode上面
+      // 1) 读取本地的文件
+      // 2) 发送数据
       copyFileToStream(output, imageFile, input,
           ImageServlet.getThrottler(conf), canceler);
     } finally {
